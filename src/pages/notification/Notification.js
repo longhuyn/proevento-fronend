@@ -11,7 +11,7 @@ export default class Notification extends React.Component {
         this.state = {
             searchList: null,
             eventList: {},
-            currUserName: null
+            currUserName: []
         };
         var options = {
             headers: {
@@ -25,11 +25,21 @@ export default class Notification extends React.Component {
         .then(res => {
             if (res.status === 200) {
                 this.setState({searchList: res["data"]});
+                res["data"].map((noti, i) => {
+                    axios.get("http://proevento.tk:3000/search/singleid/" + noti.userId, options)
+                    .then(res => {
+                        if (res.status === 200) {
+                            var tempList = this.state.currUserName;
+                            tempList.push(res["data"][0].fullName);
+                            this.setState({currUserName: tempList});
+                        }
+                    });
+                })
             }
         });
     }
 
-    getName(userId) {
+    getName() {
         var options = {
             headers: {
                 "Access-Control-Allow-Origin" : "*",
@@ -37,14 +47,15 @@ export default class Notification extends React.Component {
                 "Content-type": "Application/json"
             }
         };
-        axios.get("http://proevento.tk:3000/search/singleid/" + userId, options)
-        .then(res => {
-            if (res.status === 200) {
-               this.setState({currUserName: res["data"].fullName});
-               console.log("data: ");
-               console.log(res["data"].fullName);
-            }
-        });
+        this.state.searchList.map((noti, i) => {
+            axios.get("http://proevento.tk:3000/search/singleid/" + noti.userId, options)
+            .then(res => {
+                if (res.status === 200) {
+                    var tempList = this.state.currUserName;
+                    this.setState({currUserName: tempList.push(res["data"][0].fullName)});
+                }
+            });
+        })
     }
 
 
@@ -58,25 +69,28 @@ export default class Notification extends React.Component {
                     <p className="text-center">You don't have any notifications</p>
                 }
                 {
-                    this.state.searchList && this.state.searchList.map((noti, i) => {
+                    this.state.searchList && this.state.searchList.map((noti, i = 0) => {
                         let link = noti.joinurl
                         let description = noti.description
                         let date = noti.date
                         let name = noti.eventName
                         return(
-                            <Card className="p-3 bg-light">
-                              <h4 className ="text-left" style={{cursor: "pointer"}}
-                            onClick={(e) => {
-                                window.location.href = "http://proevento.tk/home/event/" + noti.eventId;
-                            }} >{name}</h4> 
-                              <Moment className="text-left" format="YYYY-MM-DD HH:mm">{date}</Moment>
-                              <p>Description: {this.state.currUserName}{description}</p>
-                              <div><label>Zoom link: 
-                                  <Button href={link} color="primary" target="_blank">
-                                      Click here
-                                  </Button>
-                              </label></div>
-                            </Card>
+                            <div key={noti["notificationId"]}>
+
+                                <Card className="p-3 bg-light">
+                                <h4 className ="text-left" style={{cursor: "pointer"}}
+                                onClick={(e) => {
+                                    window.location.href = "http://proevento.tk/home/event/" + noti.eventId;
+                                }} >{name}</h4> 
+                                <Moment className="text-left" format="YYYY-MM-DD HH:mm">{date}</Moment>
+                                <p>Description: {this.state.currUserName[i++]}{description}</p>
+                                <div><label>Zoom link: 
+                                    <Button href={link} color="primary" target="_blank">
+                                        Click here
+                                    </Button>
+                                </label></div>
+                                </Card>
+                            </div>
                           )
                     })
                 }

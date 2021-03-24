@@ -61,10 +61,34 @@ export default class CreateEvent extends React.Component {
             options
         )
         .then((res) => {
-            console.log(res);
             if (res.status === 200) {
-                console.log(res);
-                window.location.href = "http://proevento.tk/home/event/" + res["data"]["eventId"];
+                var thisEventId = res["data"]["eventId"];
+                if (this.state.send_to && this.state.send_to != "") {
+                    var split = this.state.send_to.split(",");
+                    console.log(split);
+                    for (var i = 0; i < split.length; i++) {
+                        axios.get("http://proevento.tk:3000/search/single/" + split[i], options)
+                        .then((res) => {
+                            if (res.status === 200) {
+                                axios.post("http://proevento.tk:3000/notification/event/" + res["data"][0]["userId"],
+                                    {
+                                        eventId: thisEventId,
+                                        eventName: this.state.event_name,
+                                        userId: user
+                                    },
+                                    options
+                                )
+                                .then((res) => {
+                                    console.log(res);
+                                    window.location.href = "http://proevento.tk/home/event/" + thisEventId;
+                                });
+                            }
+                        });
+                    }
+                }
+                else {
+                    window.location.href = "http://proevento.tk/home/event/" + thisEventId;
+                }
             }
         });
 
@@ -76,24 +100,6 @@ export default class CreateEvent extends React.Component {
         //     }
         // });
         
-        if (this.state.send_to && this.state.send_to != "") {
-            var split = this.state.send_to.split(",");
-            console.log(split);
-            for (var i = 0; i < split.length; i++) {
-                axios.get("http://proevento.tk:3000/search/single" + split[i], options)
-                    .then((res) => {
-                        if (res.status === 200) {
-                            axios.post("http://proevento.tk:3000/notification/event/" + res["data"][0]["userId"],
-                                {
-                                    eventId: this.state.eventId,
-                                    eventName: this.state.event_name,
-                                },
-                                options
-                            );
-                        }
-                    });
-            }
-        }
         
     };
     handleChange() {

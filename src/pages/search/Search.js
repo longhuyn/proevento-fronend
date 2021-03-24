@@ -38,16 +38,15 @@ export default class Search extends React.Component {
 
     onSearch() {
         const user = localStorage.getItem("user");
+        var searchQuery = this.state.searchText;
         if (this.state.searchOption == "date") {
-            var time = this.state.searchText;
-            console.log(moment(time).format('YYYY-MM-DD'));
-            return;
-            this.setState({searchText: moment(time).format('YYYY-MM-DD')});
+            searchQuery = moment(this.state.searchText).format('YYYY-MM-DD');
         }
-        axios.get("http://proevento.tk:3000/search/"+this.state.searchOption+"/"+this.state.searchText, options)
+        axios.get("http://proevento.tk:3000/search/" + this.state.searchOption+ "/" + searchQuery, options)
         .then(res => {
             if (res.status === 200) {
                 this.setState({searchList: res["data"]});
+                console.log(this.state.searchList);
             }
         });
     }
@@ -85,14 +84,10 @@ export default class Search extends React.Component {
                                 disableToolbar
                                 variant="inline"
                                 format="MM/dd/yyyy"
-                                margin="normal"
                                 id="date-picker-inline"
                                 label="Date picker inline"
                                 value={this.state.searchText}
                                 onChange={(time) => this.setState({searchText: time})} 
-                                KeyboardButtonProps={{
-                                    'aria-label': 'change date',
-                                }}
                                 />
                             </MuiPickersUtilsProvider>
                         </div>
@@ -115,17 +110,8 @@ export default class Search extends React.Component {
                             </Card>
                         </div>
                     ))}
-                    { this.state.searchOption === "tags" && this.state.searchList && this.state.searchList.map((event, i) => {
-                        return (
-                            <div key={event["eventId"]} className="mt-4" onClick={(e) => {
-                                e.preventDefault();
-                                this.props.history.push("/home/event/" + event["eventId"]);
-                            }}>
-                                <Event event={event} ></Event>
-                            </div>
-                        )
-                    })}
-                    { this.state.searchOption === "event" && this.state.searchList && this.state.searchList.map((event, i) => {
+                    { (this.state.searchOption === "tags" || this.state.searchOption === "event" || this.state.searchOption === "date") &&
+                        this.state.searchList && this.state.searchList.map((event, i) => {
                         return (
                             <div key={event["eventId"]} className="mt-4" onClick={(e) => {
                                 e.preventDefault();

@@ -180,6 +180,9 @@ export default class Profile extends React.Component {
                                 { this.state.user && 
                                     <h1>{this.state.user["fullName"]}</h1>
                                 }
+                                { this.state.user && 
+                                    <h5>Email: {this.state.user["email"]}</h5>
+                                }
                                 <div className="d-flex">
                                     <Button onClick={this.onClickViewFollowers} >{this.state.followersNum} Followers </Button>
                                     <Button style={{marginLeft: "10px"}} onClick={this.onClickViewFollowing}>{this.state.followingNum} Following </Button>

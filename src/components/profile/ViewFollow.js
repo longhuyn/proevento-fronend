@@ -62,7 +62,14 @@ export default class Profile extends React.Component {
                     </Grid>
                     <Grid item xs>
                         <div>
-                            <h1>{this.props.user["fullName"]}</h1>
+                            { 
+                                this.state.user && 
+                                <h1>{this.state.user["fullName"]}</h1>
+                            }
+                            { 
+                                this.state.user && 
+                                <h5>Email: {this.state.user["email"]}</h5>
+                            }
                             <div className="d-flex">
                                 <Button onClick={this.onClickViewFollowers}>{followerNum} Followers </Button>
                                 <Button style={{marginLeft: "10px"}} onClick={this.onClickViewFollowing}>{followingNum} Following </Button>

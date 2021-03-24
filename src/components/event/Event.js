@@ -3,8 +3,10 @@ import Avatar from '@material-ui/core/Avatar';
 import Card from '@material-ui/core/Card';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
 import "./Event.css";
 import Moment from 'react-moment';
+import axios from "axios";
 
 export default class Event extends React.Component {
     constructor(props) {
@@ -12,15 +14,49 @@ export default class Event extends React.Component {
         this.state = {
             doneLoading: false,
             event: this.props.event,
-            eventDate: null
+            eventDate: null,
+            send_to: ""
         };
         
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleSubmit = (event) => {
+        console.log("er");
+        var options = {
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods":
+                    "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+                "Content-type": "Application/json",
+            },
+        };
+        event.preventDefault();
+        if (this.state.send_to && this.state.send_to != "") {
+            var split = this.state.send_to.split(",");
+            for (var i = 0; i < split.length; i++) {
+                axios.get("http://proevento.tk:3000/search/single/" + split[i], options)
+                    .then((res) => {
+                        if (res.status === 200) {
+                            axios.post("http://proevento.tk:3000/notification/event/" + res["data"][0]["userId"],
+                                {
+                                    eventId: this.props.event['eventId'],
+                                    eventName: this.props.event['eventName'],
+                                    userId: localStorage.getItem("user")
+                                },
+                                options
+                            );
+                        }
+                    });
+            }
+        }
+        alert("You have shared this event")
     }
 
     render() {
         const user = localStorage.getItem('user');
         return(
-            <Card className="p-3 bg-light" className="mt-4 p-5">
+            <Card className="mt-4 p-5 bg-light">
                 <Grid container>
                     <Grid item xs={9}>
                         <Avatar className="avatar float-left" style={{cursor: "pointer"}}
@@ -35,10 +71,9 @@ export default class Event extends React.Component {
                             onClick={(e) => {
                                 window.location.href = "http://proevento.tk/home/event/" + this.state.event["eventId"];
                             }} >Event: {this.state.event["eventName"]}</h4>
-                        {/* <i>{this.state.event["date"]}</i> */}
                         <div className="time"><Moment format="YYYY-MM-DD HH:mm">{this.state.event["date"]}</Moment></div>
                         <p className = "description">Description: {this.state.event["description"]}</p>
-                        <div><label>Participants: {this.state.event["participants"].length}</label></div>
+                        {/* <div><label>Participants: {this.state.event["participants"].length}</label></div> */}
                         <div className = "tagList">
                             <label>Tags: </label>
                             {
@@ -62,6 +97,24 @@ export default class Event extends React.Component {
                                 { this.state.event["type"] == 1 && " Private"}
                             </label>
                         </div>
+                        { this.props.isEventPage &&
+                            <div onSubmit={this.handleSubmit}>
+                                <label>
+                                    <p>Share Event With: (emails
+                                    separated by commas)</p>
+                                    <TextField 
+                                        id="outlined-basic" 
+                                        variant="outlined" 
+                                        size="small" fullWidth
+                                        onChange={(e) =>
+                                            this.setState({ send_to: e.target.value })
+                                        }
+                                    />
+                                </label>
+                                <Button variant="contained" color="primary" className="button button1 ml-3" onClick={this.handleSubmit}>Submit</Button>
+                            </div>
+                        }
+                        
                     </Grid>
                     <Grid item xs className="d-flex justify-content-center align-items-center">
                         {this.state.event["eventImage"] != null &&
