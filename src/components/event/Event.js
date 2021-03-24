@@ -33,7 +33,7 @@ export default class Event extends React.Component {
         };
         event.preventDefault();
         if (this.state.send_to && this.state.send_to != "") {
-            var split = this.state.send_to.split(",");
+            var split = this.state.send_to.trim().split(",");
             for (var i = 0; i < split.length; i++) {
                 axios.get("http://proevento.tk:3000/search/single/" + split[i], options)
                     .then((res) => {

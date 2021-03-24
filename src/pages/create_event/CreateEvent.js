@@ -51,8 +51,8 @@ export default class CreateEvent extends React.Component {
             {
                 eventName: this.state.event_name,
                 description: this.state.description,
-                participants: this.state.send_to.split(","),
-                tags: this.state.tags.split(","),
+                participants: this.state.send_to.trim().split(","),
+                tags: this.state.tags.trim().split(","),
                 type: this.state.private_event,
                 userId: user,
                 eventImage: this.state.eventImage,
@@ -64,7 +64,7 @@ export default class CreateEvent extends React.Component {
             if (res.status === 200) {
                 var thisEventId = res["data"]["eventId"];
                 if (this.state.send_to && this.state.send_to != "") {
-                    var split = this.state.send_to.split(",");
+                    var split = this.state.send_to.trim().split(",");
                     console.log(split);
                     for (var i = 0; i < split.length; i++) {
                         axios.get("http://proevento.tk:3000/search/single/" + split[i], options)
