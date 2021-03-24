@@ -1,0 +1,39 @@
+.main {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.login-component {
+    /* The image used */
+    background-image: url(./background.jpg);
+  
+    /* Full height */
+    height: 100%; 
+    width: 100%;
+
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    
+  
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: auto;
+}
+
+.google-login-button {
+    margin-top: 30px;
+    width: 200px;
+    justify-content: center;
+}
+
+.error-message {
+    color: red;
+}
