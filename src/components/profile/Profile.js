@@ -67,11 +67,16 @@ export default class Profile extends React.Component {
         .then(res => {
             if (res.status === 200) {
                 this.setState({profile: res["data"]});
-                this.setState({followersNum: this.state.profile["followers"].length});
-                this.setState({followingNum: this.state.profile["following"].length});
-                if (this.state.profile["followers"].includes(localStorage.getItem("user"))) {
-                    this.setState({followStatus: "UNFOLLOW"});
-                } 
+                if (this.state.profile == null) {
+
+                }
+                else {
+                    this.setState({followersNum: this.state.profile["followers"].length});
+                    this.setState({followingNum: this.state.profile["following"].length});
+                    if (this.state.profile["followers"].includes(localStorage.getItem("user"))) {
+                        this.setState({followStatus: "UNFOLLOW"});
+                    } 
+                }
             }
         });
     }

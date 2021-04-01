@@ -31,7 +31,8 @@ export default class Search extends React.Component {
             searchOption: "event",
             searchText: "",
             searchList: [],
-            buttonStates: {}
+            buttonStates: {},
+            emptyList: false
         };
         this.onSearch = this.onSearch.bind(this);
     }
@@ -46,9 +47,15 @@ export default class Search extends React.Component {
         .then(res => {
             if (res.status === 200) {
                 this.setState({searchList: res["data"]});
+                if (this.state.searchList.length == 0) {
+                    this.setState({emptyList: true});
+                } else {
+                    this.setState({emptyList: false});
+                }
                 console.log(this.state.searchList);
-            }
+            } 
         });
+
     }
 
 
@@ -61,7 +68,7 @@ export default class Search extends React.Component {
                         className="mt-3"
                         value={this.state.searchOption}
                         labelId="Search Option"
-                        onChange={(event) => this.setState({searchOption: event.target.value, searchList: null, searchText: null})}
+                        onChange={(event) => this.setState({searchOption: event.target.value, searchList: null, searchText: null, emptyList: false})}
                         style={{width: "100px"}}
                     >
                         <MenuItem value={"event"}>Event</MenuItem>
@@ -73,7 +80,7 @@ export default class Search extends React.Component {
                         <TextField 
                             className="ml-2 w-25"
                             label="Search" 
-                            onChange={(event) => this.setState({searchText: event.target.value})} 
+                            onChange={(event) => this.setState({searchText: event.target.value, emptyList: false})} 
                             value={this.state.newTag}
                         />
                     }
@@ -87,7 +94,7 @@ export default class Search extends React.Component {
                                 id="date-picker-inline"
                                 label="Date picker inline"
                                 value={this.state.searchText}
-                                onChange={(time) => this.setState({searchText: time})} 
+                                onChange={(time) => this.setState({searchText: time, emptyList: false})} 
                                 />
                             </MuiPickersUtilsProvider>
                         </div>
@@ -121,6 +128,15 @@ export default class Search extends React.Component {
                             </div>
                         )
                     })}
+                    { (this.state.searchList == null || this.state.searchList.length == 0) && this.state.emptyList && 
+                    (this.state.searchOption === "tags" || this.state.searchOption === "event" || this.state.searchOption === "date") &&
+                        alert("No event was found")
+                    }
+                    { (this.state.searchList == null || this.state.searchList.length == 0) && this.state.emptyList &&
+                    this.state.searchOption === "user" &&
+                        alert("No user was found")
+                    }
+                                
                 </div>  
             </div>
         )

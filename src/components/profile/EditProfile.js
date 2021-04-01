@@ -71,21 +71,26 @@ export default class Profile extends React.Component {
         };
         const userId = localStorage.getItem("user");
         console.log(userId);
-        axios.put("http://proevento.tk:3000/user/" + userId, {
-            fullName: this.state.user["fullName"],
-            profileImage: this.state.user["profileImage"]
-        }, options)
-        .then(res => {
-            if (res.status === 200) {
-                axios.post("http://proevento.tk:3000/profile/tag/" + userId, {
-                    tags: this.state.profile["tags"]
-                }, options)
-                .then(res => {
-                    if (res.status === 200)
-                        this.props.doneEditing();
-                })
-            }
-        });
+        if (this.state.user["fullName"] != "" && this.state.profile["tags"] !="") {
+            axios.put("http://proevento.tk:3000/user/" + userId, {
+                fullName: this.state.user["fullName"],
+                profileImage: this.state.user["profileImage"]
+            }, options)
+            .then(res => {
+                if (res.status === 200) {
+                    axios.post("http://proevento.tk:3000/profile/tag/" + userId, {
+                        tags: this.state.profile["tags"]
+                    }, options)
+                    .then(res => {
+                        if (res.status === 200)
+                            this.props.doneEditing();
+                    })
+                }
+            });
+        }
+        else {
+            alert("Inputs cannot be empty");
+        }
     }
 
     onCancel() {

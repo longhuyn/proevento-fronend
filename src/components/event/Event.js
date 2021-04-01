@@ -37,7 +37,7 @@ export default class Event extends React.Component {
             for (var i = 0; i < split.length; i++) {
                 axios.get("http://proevento.tk:3000/search/single/" + split[i], options)
                     .then((res) => {
-                        if (res.status === 200) {
+                        if (res.status === 200&&res["data"].length != 0) {
                             axios.post("http://proevento.tk:3000/notification/event/" + res["data"][0]["userId"],
                                 {
                                     eventId: this.props.event['eventId'],
@@ -118,7 +118,7 @@ export default class Event extends React.Component {
                     </Grid>
                     <Grid item xs className="d-flex justify-content-center align-items-center">
                         {this.state.event["eventImage"] != null &&
-                            <img src = {this.state.event["eventImage"]} width="150px"/>
+                            <img src = {this.state.event["eventImage"]} width="250px"/>
                         }
                     </Grid>
                 </Grid>
