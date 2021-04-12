@@ -44,17 +44,14 @@ export default class Feed extends Component {
         }
     };
     const userId = localStorage.getItem("user");
-    console.log("load user");
     axios.get("http://proevento.tk:3000/user/" + userId, options)
     .then(res => {
         if (res.status === 200) {
             this.setState({user: res["data"]});
         }
     });
-    console.log("load profile");
     axios.get("http://proevento.tk:3000/profile/" + userId, options)
     .then(res => {
-        console.log(res["data"]);
         if (res.status === 200) {
             this.setState({profile: res["data"]});
             this.setState({following: res["data"]["following"]})
@@ -74,14 +71,12 @@ export default class Feed extends Component {
   // }
 
   loadEvents() {
-    console.log("load all events");
     axios.get("http://proevento.tk:3000/event/all")
     .then(res => {
         if (res.status === 200) {
             //this.setState({eventList: res["data"]});
             var eventList = res["data"];
             var followList = this.state.following;
-            console.log(followList);
             var results = [];
             for (var i = 0; i < eventList.length; i++) {
                 for (var j = 0; j < followList.length; j++) {
@@ -90,8 +85,6 @@ export default class Feed extends Component {
                     }
                 }
             }
-            console.log("results :")
-            console.log(results);
             this.setState({eventList: results});
         }
     });

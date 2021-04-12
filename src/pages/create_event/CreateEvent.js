@@ -8,6 +8,8 @@ import Card from "@material-ui/core/Card";
 import Button from "@material-ui/core/Button";
 import Checkbox from '@material-ui/core/Checkbox';
 import 'date-fns';
+import moment from "moment";
+import 'moment-timezone';
 
 export default class CreateEvent extends React.Component {
     constructor(props) {
@@ -27,6 +29,14 @@ export default class CreateEvent extends React.Component {
             date: "", 
             selectedDate: ""
         };
+    }
+
+    testDate() {
+        // console.log(this.state.date);
+        // console.log(moment.tz.guess());
+        // var dateObj = new Date(this.state.date);
+        // var momentObj = moment(dateObj);
+        // console.log(momentObj);
     }
 
     handleDateChange(date) {
@@ -156,8 +166,9 @@ export default class CreateEvent extends React.Component {
                         id="datetime-local"
                         type="datetime-local"
                         variant="outlined"
+                        type="datetime-local"
                         onChange={(e) =>
-                            this.setState({ date: e.target.value })
+                            {this.setState({ date: e.target.value }); this.testDate()}
                         }
                         InputLabelProps={{
                         shrink: true,

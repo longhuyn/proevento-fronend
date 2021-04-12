@@ -42,7 +42,7 @@ export default class Profile extends React.Component {
         this.loadData = this.loadData.bind(this);
 
         if (this.props.match && this.props.match.params && this.props.match.params.userId) {
-            this.setState({userId: this.props.match.params.user});
+            this.setState({userId: this.props.match.params.userId});
         }
             
         this.loadData();

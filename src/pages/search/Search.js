@@ -75,6 +75,7 @@ export default class Search extends React.Component {
                         <MenuItem value={"user"}>User</MenuItem>
                         <MenuItem value={"tags"}>Tags</MenuItem>
                         <MenuItem value={"date"}>Date</MenuItem>
+                        <MenuItem value={"group"}>Group</MenuItem>
                     </Select>
                     { this.state.searchOption != "date" &&
                         <TextField 
@@ -128,6 +129,16 @@ export default class Search extends React.Component {
                             </div>
                         )
                     })}
+                    { this.state.searchOption === "date" && this.state.searchList && this.state.searchList.map((event, i) => {
+                        return (
+                            <div key={event["eventId"]} className="mt-4" onClick={(e) => {
+                                e.preventDefault();
+                                this.props.history.push("/home/event/" + event["eventId"]);
+                            }}>
+                                <Event event={event} ></Event>
+                            </div>
+                        )
+                    })}
                     { (this.state.searchList == null || this.state.searchList.length == 0) && this.state.emptyList && 
                     (this.state.searchOption === "tags" || this.state.searchOption === "event" || this.state.searchOption === "date") &&
                         alert("No event was found")
@@ -135,6 +146,10 @@ export default class Search extends React.Component {
                     { (this.state.searchList == null || this.state.searchList.length == 0) && this.state.emptyList &&
                     this.state.searchOption === "user" &&
                         alert("No user was found")
+                    }
+                    { (this.state.searchList == null || this.state.searchList.length == 0) && this.state.emptyList && 
+                    this.state.searchOption === "group" &&
+                        alert("No group was found")
                     }
                                 
                 </div>  

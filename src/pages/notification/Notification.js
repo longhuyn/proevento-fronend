@@ -21,7 +21,7 @@ export default class Notification extends React.Component {
             }
         };
         const user = localStorage.getItem("user");
-        axios.get("http://proevento.tk:3000/notification/event/"+user, options)
+        axios.get("http://proevento.tk:3000/notification/"+user, options)
         .then(res => {
             if (res.status === 200) {
                 this.setState({searchList: res["data"]});
