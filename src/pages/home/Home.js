@@ -7,16 +7,17 @@ import "./Home.css";
 import { BrowserRouter as Router, Switch, Route, Link, useParams, useRouteMatch, useLocation } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import CreateEvent from "../create_event/CreateEvent";
+import CreateGroup from "../create_group/CreateGroup";
 import MyProfile from "../my_profile/MyProfile";
 import Search from "../search/Search"
 import EventPage from "../event/EventPage";
-import PublicFeed from "../feed/PublicFeed";
+import GroupPage from "../group_page/GroupPage";
 import Feed from "../feed/Feed";
-import FollowFeed from "../feed/FollowFeed";
 import ViewProfile from "../viewprofile/ViewProfile";
 import Notification from "../notification/Notification";
 import Chat from "../chat/Chat";
 import OnBoarding from "../onboarding/OnBoarding";
+//import Categories from "../categories/Categories";
 
 const homeHistory = createBrowserHistory();
 
@@ -42,7 +43,7 @@ function Home(props) {
                     <Nav className="mr-auto">
                         <Nav.Link className="text-white" as={Link} to={"/home/search"}>Search</Nav.Link>
                         <Nav.Link className="text-white" as={Link} to={"/home/create_event"}>Create New Event</Nav.Link>
-                        <Nav.Link className="text-white" as={Link} to={"/home/onboarding"}>OnBoarding</Nav.Link>
+                        <Nav.Link className="text-white" as={Link} to={"/home/create_group"}>Create New Group</Nav.Link>
                     </Nav>
                     <Nav>
                         <Nav.Link className="text-white" as={Link} to={"/home/notification"}>Notifications</Nav.Link>
@@ -60,12 +61,16 @@ function Home(props) {
                     <Route path={"/home/feed"} component={Feed}></Route>
                     <Route path={"/home/search"} component={Search} history={props.history}></Route>
                     <Route path={"/home/create_event"} component={CreateEvent}></Route>
+                    <Route path={"/home/create_group"} component={CreateGroup}></Route>
                     <Route path={"/home/my_profile"} component={MyProfile} ></Route>
                     <Route path={"/home/event/:eventId"} component={EventPage}></Route>
+                    <Route path={"/home/group/:groupId"} component={GroupPage}></Route>
                     <Route path={"/home/profile/:userId"} component={ViewProfile}></Route>
                     <Route path={"/home/notification"} component={Notification}></Route>
                     <Route path={"/home/chat"} component={Chat}></Route>
                     <Route path={"/home/onboarding"} component={OnBoarding}></Route>
+                    
+                    
                     <Route exact path={"/home"}>
                         <Redirect to={"/home/feed"} />;
                     </Route>

@@ -6,23 +6,50 @@ import TextField from '@material-ui/core/TextField';
 import CloseIcon from '@material-ui/icons/Close';
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
 import IconButton from '@material-ui/core/IconButton';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 import axios from 'axios';
 import AddIcon from '@material-ui/icons/Add';
+
+const options = {
+    headers: {
+        "Access-Control-Allow-Origin" : "*",
+        'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+        "Content-type": "Application/json"
+    }
+};
 
 export default class Profile extends React.Component {
     constructor(props) {
         super(props);
+        let originalProfile = this.props.profile;
         this.state = {
+            originalProfile: originalProfile,
             user: this.props.user,
             profile: this.props.profile,
-            newTag: ""
+            newTag: "",
+            availCategories: null,
+            pickedCategory: ""
         }
         this.onChangeProfileImage = this.onChangeProfileImage.bind(this);
         this.removeTag = this.removeTag.bind(this);
         this.onNameChange = this.onNameChange.bind(this);
+        this.onBioChange = this.onBioChange.bind(this);
         this.addTag = this.addTag.bind(this);
         this.onSave = this.onSave.bind(this);
         this.onCancel = this.onCancel.bind(this);
+        this.loadCategories = this.loadCategories.bind(this);
+
+        this.loadCategories();
+    }
+
+    loadCategories() {
+        axios.get(`http://proevento.tk:3000/category`)
+        .then((res) => {
+            if (res.status === 200) {
+                this.setState({availCategories: res["data"]});
+            }
+        });
     }
 
     removeTag(tag) {
@@ -51,8 +78,10 @@ export default class Profile extends React.Component {
         const prevProfile = this.state.profile;
         if (!prevProfile["tags"])
             prevProfile["tags"] = [];
-        prevProfile["tags"].push(this.state.newTag.toLowerCase());
-        this.setState({newTag: ""}); 
+        if (!prevProfile["tags"].includes(this.state.pickedCategory)) {
+            prevProfile["tags"].push(this.state.pickedCategory);
+            this.setState({profile: prevProfile});  
+        }
     }
 
     onNameChange(event) {
@@ -61,17 +90,17 @@ export default class Profile extends React.Component {
         this.setState({user: prevUser});
     }
 
+    onBioChange(event) {
+        const prevProfile = this.state.profile;
+        if (!prevProfile["bio"])
+            prevProfile["bio"] = "";
+        prevProfile["bio"] = event.target.value;
+        this.setState({profile: prevProfile});
+    }
+
     onSave() {
-        const options = {
-            headers: {
-                "Access-Control-Allow-Origin" : "*",
-                'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-                "Content-type": "Application/json"
-            }
-        };
         const userId = localStorage.getItem("user");
-        console.log(userId);
-        if (this.state.user["fullName"] != "" && this.state.profile["tags"] !="") {
+        if (this.state.user["fullName"] != "") {
             axios.put("http://proevento.tk:3000/user/" + userId, {
                 fullName: this.state.user["fullName"],
                 profileImage: this.state.user["profileImage"]
@@ -82,8 +111,15 @@ export default class Profile extends React.Component {
                         tags: this.state.profile["tags"]
                     }, options)
                     .then(res => {
-                        if (res.status === 200)
-                            this.props.doneEditing();
+                        if (res.status === 200) {
+                            axios.post("http://proevento.tk:3000/profile/bio/" + userId, {
+                                bio: this.state.profile["bio"]
+                            }, options)
+                            .then(res => {
+                                if (res.status === 200)
+                                    this.props.doneEditing();
+                            })
+                        }
                     })
                 }
             });
@@ -115,22 +151,33 @@ export default class Profile extends React.Component {
                     <Grid item xs>
                         <form noValidate autoComplete="off">
                             <TextField fullWidth className="d-block" id="fullName" label="Full Name" value={this.state.user["fullName"]} onChange={this.onNameChange}/>
+                            <TextField fullWidth className="d-block" id="bio" label="Biography" value={this.state.profile["bio"]} onChange={this.onBioChange}/>
                             <div>
-                                <TextField 
+                                <label className="mt-4">Tags:</label>
+                                {/* <TextField 
                                     id="addTag" 
                                     label="Add Tag" 
                                     onChange={(event) => this.setState({newTag: event.target.value})} 
                                     value={this.state.newTag}
-                                />
+                                /> */}
+                                <Select
+                                    style={{width: "170px"}}
+                                    className="ml-2"
+                                    value={this.state.pickedCategory}
+                                    onChange={(e) => this.setState({pickedCategory: e.target.value})}
+                                >
+                                    { this.state.availCategories &&
+                                    this.state.availCategories.map((category, index) => {
+                                        return (
+                                            <MenuItem key={index} value={category["name"]}>{category["name"]}</MenuItem>
+                                        )
+                                    })
+                                    }
+                                </Select>
                                 <IconButton className="mt-2" aria-label="delete" variant="contained" color="primary" onClick={this.addTag}>
                                     <AddIcon fontSize="small"/>
                                 </IconButton>
                             </div>
-                            <label className="mt-4">Tags:</label>
-                            {
-                                !this.state.profile["tags"] &&
-                                <span className="ml-2">empty</span>
-                            }
                             { this.state.profile["tags"] && this.state.profile["tags"].map((row, i) => {
                                     return (
                                         <React.Fragment key={i}>
@@ -150,7 +197,7 @@ export default class Profile extends React.Component {
                         </form>
                         <div className="mt-2" >
                             <Button variant="contained" color="primary" onClick={this.onSave}>Save</Button>
-                            <Button className="ml-2" variant="contained" color="secondary" onClick={this.onCancel}>Cancel</Button>
+                            <Button className="ml-2" variant="contained" color="default" onClick={this.onCancel}>Cancel</Button>
                         </div>
                     </Grid>
                 </Grid>

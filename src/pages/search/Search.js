@@ -9,6 +9,7 @@ import axios from "axios";
 import Profile from "../../components/profile/Profile";
 import Event from "../../components/event/Event";
 import DateFnsUtils from '@date-io/date-fns';
+import Group from "../../components/group/Group";
 import {
   MuiPickersUtilsProvider,
   KeyboardTimePicker,
@@ -32,7 +33,8 @@ export default class Search extends React.Component {
             searchText: "",
             searchList: [],
             buttonStates: {},
-            emptyList: false
+            emptyList: false,
+            category: "education"
         };
         this.onSearch = this.onSearch.bind(this);
     }
@@ -69,15 +71,16 @@ export default class Search extends React.Component {
                         value={this.state.searchOption}
                         labelId="Search Option"
                         onChange={(event) => this.setState({searchOption: event.target.value, searchList: null, searchText: null, emptyList: false})}
-                        style={{width: "100px"}}
+                        style={{width: "200px"}}
                     >
                         <MenuItem value={"event"}>Event</MenuItem>
                         <MenuItem value={"user"}>User</MenuItem>
                         <MenuItem value={"tags"}>Tags</MenuItem>
                         <MenuItem value={"date"}>Date</MenuItem>
-                        <MenuItem value={"group"}>Group</MenuItem>
+                        <MenuItem value={"groupName"}>Group Name</MenuItem>
+                        <MenuItem value={"groupCategory"}>Group Category</MenuItem>
                     </Select>
-                    { this.state.searchOption != "date" &&
+                    { this.state.searchOption != "date" && this.state.searchOption != "groupCategory" &&
                         <TextField 
                             className="ml-2 w-25"
                             label="Search" 
@@ -100,7 +103,36 @@ export default class Search extends React.Component {
                             </MuiPickersUtilsProvider>
                         </div>
                     }
-                    
+                    { this.state.searchOption == "groupCategory" &&
+                        <Select
+                            className="mt-3"
+                            value={this.state.searchText}
+                            labelId="Category Options"
+                            onChange={(event) => this.setState({searchList: null, searchText: event.target.value, emptyList: false})}
+                            style={{width: "200px"}}
+                        >
+                            <MenuItem value={"education"}>Education</MenuItem>
+                            <MenuItem value={"sports"}>Sports</MenuItem>
+                            <MenuItem value={"music"}>Music</MenuItem>
+                            <MenuItem value={"stonks"}>Stonks</MenuItem>
+                            <MenuItem value={"memes"}>Memes</MenuItem>
+                            <MenuItem value={"religion"}>Religion</MenuItem>                             
+                            <MenuItem value={"coding"}>Coding</MenuItem>
+                            <MenuItem value={"FUCLA"}>FUCLA</MenuItem>
+                            <MenuItem value={"fitness"}>Fitness</MenuItem>
+                            <MenuItem value={"animals"}>Animals</MenuItem>
+                            <MenuItem value={"hobbies"}>Hobbies</MenuItem>
+                            <MenuItem value={"politics"}>Politics</MenuItem> 
+                            <MenuItem value={"instagram"}>Instagram</MenuItem>
+                            <MenuItem value={"technology"}>Technology</MenuItem>
+                            <MenuItem value={"gaming"}>Gaming</MenuItem>
+                            <MenuItem value={"food"}>Food</MenuItem>
+                            <MenuItem value={"environment"}>Environment</MenuItem>
+                            <MenuItem value={"relationships"}>Relationships</MenuItem>
+                            <MenuItem value={"anime"}>Anime</MenuItem>                             
+                        </Select>
+
+                    }
                     <Button className="ml-2" variant="contained" color="primary" onClick={this.onSearch}>Search</Button>
                 </div>
                 
@@ -109,7 +141,7 @@ export default class Search extends React.Component {
                         <div key={user["userId"]}>
                             <Card 
                                 style={{cursor: "pointer"}}
-                                className="mt-2 p-3 bg-light" 
+                                className="mt-4 p-3 bg-light" 
                                 onClick={(e) => {
                                 e.preventDefault();
                                 this.props.history.push("/home/profile/" + user["userId"]);
@@ -139,6 +171,16 @@ export default class Search extends React.Component {
                             </div>
                         )
                     })}
+                    { (this.state.searchOption === "groupName" || this.state.searchOption === "groupCategory")  && this.state.searchList && this.state.searchList.map((group, i) => {
+                        return (
+                            <Card key={group["groupId"]} className="mt-4 bg-light p-4" onClick={(e) => {
+                                e.preventDefault();
+                                this.props.history.push("/home/group/" + group["groupId"]);
+                            }}>
+                                <Group data={group} page={false}/>
+                            </Card>
+                        )
+                    })}
                     { (this.state.searchList == null || this.state.searchList.length == 0) && this.state.emptyList && 
                     (this.state.searchOption === "tags" || this.state.searchOption === "event" || this.state.searchOption === "date") &&
                         alert("No event was found")
@@ -148,7 +190,7 @@ export default class Search extends React.Component {
                         alert("No user was found")
                     }
                     { (this.state.searchList == null || this.state.searchList.length == 0) && this.state.emptyList && 
-                    this.state.searchOption === "group" &&
+                    (this.state.searchOption === "groupName" || this.state.searchOption === "groupCategory")&&
                         alert("No group was found")
                     }
                                 

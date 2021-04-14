@@ -22,10 +22,14 @@ export default class Feed extends Component {
       user: null,
       profile: null,
       following: [],
-      eventList: []
+      eventList: [],
+      userGroupList: []
     };
     this.loadData = this.loadData.bind(this);
     this.loadData();
+
+    this.loadGroupUsers = this.loadGroupUsers.bind(this);
+    this.loadGroupUsers();
 
     this.loadEvents = this.loadEvents.bind(this);
     this.loadEvents();
@@ -57,27 +61,75 @@ export default class Feed extends Component {
             this.setState({following: res["data"]["following"]})
         }
     });
+    axios.get("http://proevento.tk:3000/chat/group_chat/" + userId, options)
+    .then(res => {
+        if (res.status === 200) {
+            var groups = res["data"];
+            var groupUsers = [];
+            for (var i = 0; i < groups.length; i++) {
+              for (var j = 0; j < groups[i]["participants"].length; j++) {
+                if (!groupUsers.includes(groups[i]["participants"][j]) || groups[i]["participants"][j] == userId) {
+                  console.log("Added user");
+                  groupUsers.push(groups[i]["participants"][j]);
+                }
+              }
+            }
+            console.log("user Ct: " + groupUsers.length);
+            this.setState({userGroupList: groupUsers});
+        }
+    });
   }
+  
 
-  // loadEvents() {
+  // loadGroupUsers() {
   //   const userId = localStorage.getItem('user');
-  //   axios.get("http://proevento.tk:3000/event/user/" + userId, options)
+  //   axios.get("http://proevento.tk:3000/chat/group_chat/" + userId, options)
   //   .then(res => {
   //       if (res.status === 200) {
-  //           this.setState({eventList: res["data"]});
-  //           console.log(this.state.eventList);
+  //           var groups = res["data"];
+  //           var groupUsers = [];
+  //           for (var i = 0; i < groups.length; i++) {
+  //             for (var j = 0; j < groups[i]["participants"].length; j++) {
+  //               if (!groupUsers.includes(groups[i]["participants"][j]) || groups[i]["participants"][j] == userId) {
+  //                 console.log("Added user");
+  //                 groupUsers.push(groups[i]["participants"][j]);
+  //               }
+  //             }
+  //           }
+  //           console.log("user Ct: " + groupUsers.length);
+  //           this.setState({userGroupList: groupUsers});
   //       }
   //   });
   // }
 
   loadEvents() {
+    const userId = localStorage.getItem('user');
     axios.get("http://proevento.tk:3000/event/all")
     .then(res => {
         if (res.status === 200) {
             //this.setState({eventList: res["data"]});
             var eventList = res["data"];
             var followList = this.state.following;
+            var groupList = this.state.userGroupList;
             var results = [];
+            axios.get("http://proevento.tk:3000/chat/group_chat/" + userId, options)
+            .then(res => {
+                if (res.status === 200) {
+                    var groups = res["data"];
+                    var groupUsers = [];
+                    for (var i = 0; i < groups.length; i++) {
+                      for (var j = 0; j < groups[i]["participants"].length; j++) {
+                        if (!groupUsers.includes(groups[i]["participants"][j]) || groups[i]["participants"][j] == userId) {
+                          console.log("Added user");
+                          groupUsers.push(groups[i]["participants"][j]);
+                        }
+                      }
+                    }
+                    console.log("user Ct: " + groupUsers.length);
+                    this.setState({userGroupList: groupUsers});
+                }
+            });
+            console.log("number of users check: " + groupList.length);
             for (var i = 0; i < eventList.length; i++) {
                 for (var j = 0; j < followList.length; j++) {
                     if (eventList[i]["userId"] == parseInt(followList[j])) {
@@ -85,11 +137,18 @@ export default class Feed extends Component {
                     }
                 }
             }
+            for (var i = 0; i < eventList.length; i++) {
+              for (var j = 0; j < groupList.length; j++) {
+                if (eventList[i]["userId"] == parseInt(groupList[j])) {
+                  results.push(eventList[i]);
+                }
+              }
+            }
             this.setState({eventList: results});
         }
     });
   }
-
+  
   render() {
     return(
       <div>

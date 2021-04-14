@@ -35,7 +35,11 @@ class Login extends React.Component {
             .then(res => {
                 if (res.status === 200) {
                     localStorage.setItem("user", res.data["userId"]);
-                    this.props.history.push("/home");
+                    if (res["data"]["first"] == true) {
+                        this.props.history.push("/onboarding");
+                    } else {
+                        this.props.history.push("/home");
+                    }
                 }
                 else {
                     this.setState({error: "Unable to login. Please retry again!"});

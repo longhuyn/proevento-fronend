@@ -2,6 +2,7 @@ import "./App.css";
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import Login from "./pages/login/Login";
 import Home from "./pages/home/Home";
+import OnBoarding from "./pages/onboarding/OnBoarding";
 import { BrowserRouter as Router, Switch, Route, useHistory, Redirect } from "react-router-dom";
 import { createBrowserHistory } from "history";
 
@@ -17,15 +18,10 @@ function App() {
         <div className="App">
             <Router history={history}>
                 <Switch>
-                    <Route path="/login">
-                        <Login/>
-                    </Route>
-                    <Route path="/home">
-                        <Home/>
-                    </Route>
-                    <Route path="/">
-                        <Login/>
-                    </Route>
+                    <Route path="/login"><Login/></Route>
+                    <Route path="/home"><Home/></Route>
+                    <Route path="/onboarding"><OnBoarding/></Route>
+                    <Route path="/"><Login/></Route>
                 </Switch>
             </Router>
         </div>

@@ -7,6 +7,9 @@ import PersonalEvents from "../../components/personal_events/PersonalEvents";
 import ViewFollow from "../../components/profile/ViewFollow";
 import Event from "../../components/event/Event";
 import axios from 'axios';
+import Moment from 'react-moment';
+import moment from "moment";
+import 'moment-timezone';
 
 const options = {
     headers: {
@@ -30,6 +33,8 @@ export default class Profile extends React.Component {
             profile: null,
             followersNum: 0,
             followingNum: 0,
+            hostedNum: 0,
+            upcomingNum: 0,
             followStatus: "FOLLOW"
         };
         this.onClickEdit = this.onClickEdit.bind(this);
@@ -77,6 +82,28 @@ export default class Profile extends React.Component {
                         this.setState({followStatus: "UNFOLLOW"});
                     } 
                 }
+            }
+        });
+        //api.add_resource(GetUserEventsAPI, '/event/user/<userId>')
+        axios.get("http://proevento.tk:3000/event/user/" + this.state.userId, options)
+        .then(res => {
+            if (res.status === 200) {
+                //const eventList = res["data"];
+                let numHosted = 0;
+                let numUpcoming = 0;
+                res["data"].map((row, i) => {
+                   let curDate = moment();
+                   let date = moment(row["date"]).valueOf();
+                   if (curDate > date) {
+                       numHosted++;
+                   }
+                   else {
+                       numUpcoming++;
+                   }
+                   //console.log("date: " + date + " " + curDate);
+                });
+                this.setState({hostedNum: numHosted});
+                this.setState({upcomingNum: numUpcoming});
             }
         });
     }
@@ -144,6 +171,7 @@ export default class Profile extends React.Component {
 
     doneEditing() {
         this.setState({isEdit: false});
+        this.loadData();
     }
 
     doneViewFollow() {
@@ -176,7 +204,7 @@ export default class Profile extends React.Component {
                             { this.props.isMyProfile === false && localStorage.getItem("user") != this.state.userId &&
                                 <div className="d-flex justify-content-center mt-2"><Button variant="contained" color="primary" onClick={this.onClickFollow}>{this.state.followStatus}</Button></div>
                             }
-                            { localStorage.getItem("user") == this.state.userId &&
+                            { this.props.profilePage && localStorage.getItem("user") == this.state.userId &&
                                 <div className="d-flex justify-content-center mt-2"><Button variant="contained" color="primary" onClick={this.onClickEdit}>Edit Profile</Button></div>
                             }
                         </Grid>
@@ -193,6 +221,15 @@ export default class Profile extends React.Component {
                                     <Button style={{marginLeft: "10px"}} onClick={this.onClickViewFollowing}>{this.state.followingNum} Following </Button>
                                 </div>
                                 <div>
+                                    { this.state.profile && (this.state.profile["bio"] == null || this.state.profile["bio"] == "") &&
+                                        <label>Bio: empty</label>
+                                    }
+                                    { this.state.profile && this.state.profile["bio"] && 
+                                        <label>Bio: {this.state.profile["bio"]}</label>
+                                    }
+                                </div>
+                                <div></div>
+                                <div>
                                     <label>Tags: </label>
                                     { this.state.profile && this.state.profile["tags"].length == 0 &&
                                         <span className="ml-1">empty</span>
@@ -206,6 +243,12 @@ export default class Profile extends React.Component {
                                             )
                                         })
                                     }
+                                </div>
+                                <div>
+                                    <label>Number of Hosted Events: {this.state.hostedNum} </label>
+                                </div>
+                                <div>
+                                   <label>Upcoming Events: {this.state.upcomingNum} </label>
                                 </div>
                             </div>
                         </Grid>

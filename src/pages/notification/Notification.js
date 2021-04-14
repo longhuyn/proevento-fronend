@@ -5,6 +5,14 @@ import Card from '@material-ui/core/Card';
 import Button from '@material-ui/core/Button';
 import Moment from "react-moment";
 
+var options = {
+    headers: {
+        "Access-Control-Allow-Origin" : "*",
+        'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+        "Content-type": "Application/json"
+    }
+};
+
 export default class Notification extends React.Component {
     constructor(props) {
         super(props);
@@ -13,13 +21,7 @@ export default class Notification extends React.Component {
             eventList: {},
             currUserName: []
         };
-        var options = {
-            headers: {
-                "Access-Control-Allow-Origin" : "*",
-                'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-                "Content-type": "Application/json"
-            }
-        };
+        
         const user = localStorage.getItem("user");
         axios.get("http://proevento.tk:3000/notification/"+user, options)
         .then(res => {
@@ -58,8 +60,6 @@ export default class Notification extends React.Component {
         })
     }
 
-
-
     render() {
         return (
             <div>
@@ -70,26 +70,42 @@ export default class Notification extends React.Component {
                 }
                 {
                     this.state.searchList && this.state.searchList.map((noti, i = 0) => {
-                        let link = noti.joinurl
-                        let description = noti.description
+                        let userName = noti.userName
+                        let eventName = noti.eventName
                         let date = noti.date
-                        let name = noti.eventName
+                        let type = noti.type
                         return(
                             <div key={noti["notificationId"]}>
-
-                                <Card className="p-3 bg-light">
-                                <h4 className ="text-left" style={{cursor: "pointer"}}
-                                onClick={(e) => {
-                                    window.location.href = "http://proevento.tk/home/event/" + noti.eventId;
-                                }} >{name}</h4> 
-                                <Moment className="text-left" format="YYYY-MM-DD HH:mm">{date}</Moment>
-                                <p>Description: {this.state.currUserName[i++]}{description}</p>
-                                <div><label>Zoom link: 
-                                    <Button href={link} color="primary" target="_blank">
-                                        Click here
-                                    </Button>
-                                </label></div>
-                                </Card>
+                                {type == "EVENT" &&
+                                    <Card 
+                                        className="p-3 bg-light"
+                                        onClick={(e) => {
+                                            window.location.href = "http://proevento.tk/home/event/" + noti.eventId;
+                                        }} 
+                                    >
+                                        <Moment className="text-left" format="YYYY-MM-DD HH:mm">{date}</Moment>
+                                        <p>You have been invited to {eventName}</p>
+                                    </Card>
+                                }
+                                {type == "CANCEL" &&
+                                    <Card 
+                                        className="p-3 bg-light"
+                                    >
+                                        <Moment className="text-left" format="YYYY-MM-DD HH:mm">{date}</Moment>
+                                        <p>{eventName} has been cancelled</p>
+                                    </Card>
+                                }
+                                {type == "FOLLOW" &&
+                                    <Card 
+                                        className="p-3 bg-light"
+                                        onClick={(e) => {
+                                            window.location.href = "http://proevento.tk/home/profile/" + noti.userId;
+                                        }} 
+                                    >
+                                        <Moment className="text-left" format="YYYY-MM-DD HH:mm">{date}</Moment>
+                                        <p>{userName} has followed you</p>
+                                    </Card>
+                                }
                             </div>
                           )
                     })

@@ -68,7 +68,13 @@ export default class MyProfile extends React.Component {
             <div>
                 { this.state.profile && this.state.user &&
                     <div>
-                        <Profile userId={userId} user={this.state.user} profile={this.state.profile} isMyProfile={true} loadData={this.loadData}/>
+                        <Profile 
+                            userId={userId} 
+                            user={this.state.user} 
+                            profile={this.state.profile} 
+                            isMyProfile={true} 
+                            profilePage={true}
+                            loadData={this.loadData}/>
                         <div className="d-block text-center w-100 mt-2">
                             <Button 
                                 className="justify-content-center" 

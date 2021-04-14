@@ -8,6 +8,15 @@ import "./Event.css";
 import Moment from 'react-moment';
 import axios from "axios";
 
+var options = {
+    headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods":
+            "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+        "Content-type": "Application/json",
+    },
+};
+
 export default class Event extends React.Component {
     constructor(props) {
         super(props);
@@ -22,22 +31,13 @@ export default class Event extends React.Component {
     }
 
     handleSubmit = (event) => {
-        console.log("er");
-        var options = {
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods":
-                    "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-                "Content-type": "Application/json",
-            },
-        };
         event.preventDefault();
         if (this.state.send_to && this.state.send_to != "") {
             var split = this.state.send_to.trim().split(",");
             for (var i = 0; i < split.length; i++) {
                 axios.get("http://proevento.tk:3000/search/single/" + split[i], options)
                     .then((res) => {
-                        if (res.status === 200&&res["data"].length != 0) {
+                        if (res.status === 200 && res["data"].length != 0) {
                             axios.post("http://proevento.tk:3000/notification/event/" + res["data"][0]["userId"],
                                 {
                                     eventId: this.props.event['eventId'],

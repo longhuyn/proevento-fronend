@@ -10,6 +10,7 @@ import {
     ConversationList,
     Conversation,
     Avatar,
+    AvatarGroup,
     ExpansionPanel,
     ConversationHeader,
     InfoButton,
@@ -67,50 +68,43 @@ export default class Chat extends React.Component {
     }
 
     loadChatRooms(){
-        if (this.state.chatType == "0") {
-            const user = localStorage.getItem("user");
-    
-            axios.get(`http://proevento.tk:3000/chat/user_chat/` + user)
-            .then((res) => {
-                if (res.status === 200) {
-                    this.setState({chatRoomList: res["data"]});
-                    if (this.state.chatRoomList.length > 0) {
-                        this.onChangeChatRoom(0);
-                    }
+        const user = localStorage.getItem("user");
+        const chatName = (this.state.chatType == 0) ? "user_chat" : "group_chat";
+        axios.get(`http://proevento.tk:3000/chat/` + chatName + "/" + user)
+        .then((res) => {
+            if (res.status === 200) {
+                this.setState({chatRoomList: res["data"]});
+                if (this.state.chatRoomList.length > 0) {
+                    this.onChangeChatRoom(0);
                 }
-            });
-        }
-        else {
-
-        }
+            }
+        });
     }
 
     loadChatMessages() {
-        axios.get(`http://proevento.tk:3000/chat/chat_messages/` + this.state.chatType + "/" + this.state.currentRoom["roomId"])
+        const roomId = (this.state.chatType == 0) ? this.state.currentRoom["roomId"] : this.state.currentRoom["groupId"];
+        axios.get(`http://proevento.tk:3000/chat/chat_messages/` + this.state.chatType + "/" + roomId)
         .then((res) => {
             if (res.status === 200) {
                 this.setState({messageList: res["data"]});
-                console.log(res["data"]);
             }
         });
     }
 
     getChatMessagesFromSocket() {
         this.state.socket.on("get_message", (data) => {
-            if (data["roomId"] == this.state.currentRoom["roomId"] && 
-                data["chatType"] == this.state.chatType) {
-                console.log(this.state.messageList)
+            const roomId = (this.state.chatType == 0) ? this.state.currentRoom["roomId"] : this.state.currentRoom["groupId"];
+            if (data["roomId"] == roomId && data["chatType"] == this.state.chatType) {
                 const messageList = this.state.messageList;
                 messageList.push(data);
                 this.setState({messageList: messageList});
             }
-            
         })
     }
 
     onChangeChatType(value) {
         if (this.state.chatType != value) {
-            this.setState({chatType: value, currentRoomIndex: 0, currentRoom: null, messageList: null}, () => {
+            this.setState({chatType: value, currentRoomIndex: 0, currentRoom: null, messageList: null, chatRoomList: null}, () => {
                 this.loadChatRooms();
             });
         }  
@@ -118,20 +112,49 @@ export default class Chat extends React.Component {
 
     onChangeChatRoom(index) {
         const temp = this.state.chatRoomList[index];
+        const roomId = (this.state.chatType == 0) ? temp["roomId"] : temp["groupId"];
         if (this.state.currentRoom)
-            this.state.socket.emit("leave", {roomId: this.state.currentRoom["roomId"], chatType: this.state.chatType});
+            this.state.socket.emit("leave", {roomId: roomId, chatType: this.state.chatType});
         this.setState({currentRoomIndex: index, currentRoom: temp, messageList: null}, () => this.loadChatMessages());
-        this.state.socket.emit("join", {roomId: temp["roomId"], chatType: this.state.chatType});
+        this.state.socket.emit("join", {roomId: roomId, chatType: this.state.chatType});
     }
 
     onSendMessage(message) {
         const userId = localStorage.getItem("user");
+        const roomId = (this.state.chatType == 0) ? this.state.currentRoom["roomId"] : this.state.currentRoom["groupId"];
         this.state.socket.emit('send_message', {
             userId: userId, 
-            roomId: this.state.currentRoom["roomId"], 
+            roomId: roomId, 
             chatType: this.state.chatType,
             message: message
         });
+    }
+
+    getMessagePosition(index) {
+        var position = "single";
+        if (index == 0) {
+            if (this.state.messageList.length == 1)
+                position = "single";
+            else if (this.state.messageList[0]["userId"] != this.state.messageList[1]["userId"])
+                position = "single";
+            else position = "first";
+        }
+        else if (index == this.state.messageList.length - 1) {
+            if (this.state.messageList[index - 1]["userId"] != this.state.messageList[index]["userId"])
+                position = "single";
+            else position = "last";
+        } 
+        else {
+            if (this.state.messageList[index - 1]["userId"] != this.state.messageList[index]["userId"]
+            && this.state.messageList[index]["userId"] != this.state.messageList[index + 1]["userId"])
+                position = "single";
+            else if (this.state.messageList[index - 1]["userId"] != this.state.messageList[index]["userId"])
+                position = "first";
+            else if (this.state.messageList[index]["userId"] != this.state.messageList[index + 1]["userId"])
+                position = "last";
+            else position = "normal";
+        }
+        return position;
     }
 
     render() {
@@ -139,7 +162,6 @@ export default class Chat extends React.Component {
             <div style={{ height: "100%" }}>
                 <MainContainer responsive>
                     <Sidebar position="left" scrollable={false}>
-                        {/* <Search placeholder="Search..." /> */}
                         <div className="d-flex mt-2">
                             <ButtonGroup
                                 className="justify-content-center w-100 ml-2 mr-2"
@@ -162,7 +184,7 @@ export default class Chat extends React.Component {
                         </div>
 
                         <ConversationList>
-                            { this.state.chatType == 0 &&
+                            { this.state.chatType == 0 && this.state.chatRoomList &&
                                 this.state.chatRoomList.map((room, index) => {
                                 return (
                                     <Conversation
@@ -180,12 +202,41 @@ export default class Chat extends React.Component {
                                     </Conversation>
                                 )})
                             }
+                            { this.state.chatType == 1 && this.state.chatRoomList &&
+                                this.state.chatRoomList.map((room, i) => {
+                                    return (
+                                        <Conversation
+                                            className="align-items-center"
+                                            key={room["groupId"]}
+                                            name={room["name"]}
+                                            onClick={() => this.onChangeChatRoom(i)}
+                                        >
+                                            <AvatarGroup size="md" 
+                                                style={{
+                                                    width: "68px",
+                                                    height: "68px"
+                                                }}>      
+                                                <Avatar src={room["owner"]["profileImage"]} name={room["owner"]["fullName"]} />          
+                                                { room["participants"].map((user, index) => {
+                                                    return (
+                                                        <Avatar key={index} src={user["profileImage"]} name={user["fullName"]} />
+                                                    )
+                                                })}       
+                                            </AvatarGroup>
+                                        </Conversation>
+                                    )
+                                }
+                            )}
                         </ConversationList>
                     </Sidebar>
                     
                     <ChatContainer>
                     
-                        <ConversationHeader>
+                        <ConversationHeader
+                            style={{
+                                height: (this.state.chatType == 1) ? "90px" : "auto"
+                            }}    
+                        >
                             <ConversationHeader.Back />
                             
                             { this.state.chatType == 0 && this.state.currentRoom &&
@@ -194,11 +245,30 @@ export default class Chat extends React.Component {
                                     name={this.state.currentRoom["chatUser"]["fullName"]}
                                 />
                             }
+                            { this.state.chatType == 1 && this.state.currentRoom &&
+                                <AvatarGroup size="md" 
+                                    style={{
+                                        width: "68px",
+                                        height: "68px"
+                                    }}>      
+                                    <Avatar src={this.state.currentRoom["owner"]["profileImage"]} name={this.state.currentRoom["owner"]["fullName"]} />          
+                                    { this.state.currentRoom["participants"].map((user, index) => {
+                                        return (
+                                            <Avatar key={user["userId"]} src={user["profileImage"]} name={user["fullName"]} />
+                                        )
+                                    })}       
+                                </AvatarGroup>
+                            }
+                            
                             
                             <ConversationHeader.Content
+                                style={{
+                                    marginLeft: (this.state.chatType == 1) ? "50px" : "0"
+                                }}
                                 userName={ ( this.state.chatType == 0 && this.state.currentRoom && 
                                             this.state.currentRoom["chatUser"]["fullName"]) 
-                                        || ( this.state.chatType == 1 && "testing")}
+                                        || ( this.state.chatType == 1 && this.state.currentRoom && 
+                                            this.state.currentRoom["name"])}
                                 // info="Active 10 mins ago"
                             />
                             
@@ -212,30 +282,8 @@ export default class Chat extends React.Component {
                             { this.state.messageList && 
                             this.state.messageList.map((message, index) => {
                                 const userId = localStorage.getItem("user");
-                                var position = "single";
-                                if (index == 0) {
-                                    if (this.state.messageList.length == 1)
-                                        position = "single";
-                                    else if (this.state.messageList[0]["userId"] != this.state.messageList[1]["userId"])
-                                        position = "single";
-                                    else position = "first";
-                                }
-                                else if (index == this.state.messageList.length - 1) {
-                                    if (this.state.messageList[index - 1]["userId"] != this.state.messageList[index]["userId"])
-                                        position = "single";
-                                    else position = "last";
-                                } 
-                                else {
-                                    if (this.state.messageList[index - 1]["userId"] != this.state.messageList[index]["userId"]
-                                    && this.state.messageList[index]["userId"] != this.state.messageList[index + 1]["userId"])
-                                        position = "single";
-                                    else if (this.state.messageList[index - 1]["userId"] != this.state.messageList[index]["userId"])
-                                        position = "first";
-                                    else if (this.state.messageList[index]["userId"] != this.state.messageList[index + 1]["userId"])
-                                        position = "last";
-                                    else position = "normal";
-                                }
-                                    
+                                var position = this.getMessagePosition(index);
+                                
                                 var chatModel = {
                                     message: message["message"],
                                     sender: message["chatUser"]["fullName"],
@@ -284,6 +332,32 @@ export default class Chat extends React.Component {
                                     </div>
                                 </div>
                             }
+                            <div>
+                                { this.state.chatType == 1 && this.state.currentUser && this.state.currentRoom &&
+                                    <div className="d-flex align-items-center mt-3 ml-3">
+                                        <Avatar
+                                            src={this.state.currentRoom["owner"]["profileImage"]}
+                                            name={this.state.currentRoom["owner"]["fullName"]}
+                                            style={{height:"25px", width:"25px"}}
+                                        />
+                                        <span className="ml-1">{this.state.currentRoom["owner"]["fullName"]} (owner)</span>
+                                    </div> 
+                                }
+                                { this.state.chatType == 1 && this.state.currentUser && this.state.currentRoom &&
+                                this.state.currentRoom["participants"].map((user, index) => {
+                                    return (
+                                        <div className="d-flex align-items-center mt-3 ml-3">
+                                            <Avatar
+                                                key={user["userId"]}
+                                                src={user["profileImage"]}
+                                                name={user["fullName"]}
+                                                style={{height:"25px", width:"25px"}}
+                                            />
+                                            <span className="ml-1">{user["fullName"]}</span>
+                                        </div>
+                                    )
+                                })}
+                            </div>
                         </ExpansionPanel>
                     </Sidebar>
                 </MainContainer>
