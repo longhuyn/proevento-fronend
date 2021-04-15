@@ -7,7 +7,7 @@ import Profile from "../../components/profile/Profile";
 import Button from '@material-ui/core/Button';
 import moment from 'moment';
 
-var options = {
+const options = {
     headers: {
         "Access-Control-Allow-Origin" : "*",
         'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
@@ -24,15 +24,20 @@ export default class GroupPage extends React.Component {
             reveal: false,
             searchOption: "user",
             searchList: [],
-            emptyList: false
+            emptyList: false,
+            userName: null
         }
         
         this.loadGroupData = this.loadGroupData.bind(this);
         this.onSearch = this.onSearch.bind(this);
+        this.onRequest = this.onRequest.bind(this);
+        this.onClickRequest = this.onClickRequest.bind(this);
         this.loadGroupData();
+        
     }
 
     loadGroupData() {
+        var userId = localStorage.getItem("user");
         axios.get("http://proevento.tk:3000/group/" + this.state.groupId)
         .then((res) => {
             if (res.status === 200) {
@@ -45,8 +50,17 @@ export default class GroupPage extends React.Component {
                     console.log(this.state.reveal);
                 }
             }
+        });
+        axios.get("http://proevento.tk:3000/user/" + userId, options)
+        .then(res => {
+            if (res.status === 200) {
+                console.log(res["data"]);
+                console.log(res["data"]["fullName"])
+                this.setState({userName: res["data"]["fullName"]});
+            }
         }) 
     }
+
     onSearch() {
         const user = localStorage.getItem("user");
         var searchQuery = this.state.searchText;
@@ -68,9 +82,53 @@ export default class GroupPage extends React.Component {
 
     }
 
+    onRequest(recipientId){
+        const userId = localStorage.getItem('user');
+        var gId = this.state.groupId
+        axios.post(
+            "http://proevento.tk:3000/group/request/" + recipientId,
+            {
+                owner: true,
+                userId: userId,
+                groupId: gId
+            },
+            options
+        ).then((res) => {
+            if (res.status === 200) {
+                alert("Request For User to Join has Been sent")
+                console.log("WORKING SEND");
+            } else {
+                console.log("BORKED");
+            }
+        });
+    }
+
+    onClickRequest(){
+        const userId = localStorage.getItem('user');
+        var gId = this.state.groupId
+        axios.post(
+            "http://proevento.tk:3000/group/request/owner",
+            {
+                userId: userId,
+                groupId: gId
+            },
+            options
+        ).then((res) => {
+            if (res.status === 200) {
+                alert("Request For User to Owner has Been sent")
+                console.log("WORKING SEND");
+            } else {
+                console.log("BORKED");
+            }
+        });
+    }
+
     render() {
         return (
             <div>
+                {this.state.groupData && !this.state.reveal &&
+                    <Button className="float-right" variant="contained" color="primary" onClick={this.onClickRequest}>Request to join</Button>
+                }    
                 { this.state.groupData &&
                     <Group data={this.state.groupData} page={true}/>
                 }
@@ -89,12 +147,9 @@ export default class GroupPage extends React.Component {
                         <div key={user["userId"]}>
                             <Card 
                                 style={{cursor: "pointer"}}
-                                className="mt-2 p-3 bg-light" 
-                                onClick={(e) => {
-                                e.preventDefault();
-                                this.props.history.push("/home/profile/" + user["userId"]);
-                            }}>
+                                className="mt-2 p-3 bg-light" >
                                 <Profile userId={user["userId"]}></Profile>
+                                <Button className="ml-2" variant="contained" color="primary" onClick={()=>this.onRequest(user["userId"])}>Request User to Join</Button>
                             </Card>
                         </div>
                     ))}

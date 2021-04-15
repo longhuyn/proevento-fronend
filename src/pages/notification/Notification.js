@@ -26,18 +26,58 @@ export default class Notification extends React.Component {
         axios.get("http://proevento.tk:3000/notification/"+user, options)
         .then(res => {
             if (res.status === 200) {
+                console.log(res["data"]);
                 this.setState({searchList: res["data"]});
                 res["data"].map((noti, i) => {
                     axios.get("http://proevento.tk:3000/search/singleid/" + noti.userId, options)
                     .then(res => {
                         if (res.status === 200) {
                             var tempList = this.state.currUserName;
-                            tempList.push(res["data"][0].fullName);
+                            //console.log("name" + noti.userId);
+                            // console.log("name" + noti.userId);
+                            // console.log(tempList);
+                            //console.log(res["data"]);
+                            if (res["data"][0].fullName) {
+                                tempList.push(res["data"][0].fullName);
+                            }
                             this.setState({currUserName: tempList});
                         }
                     });
                 })
             }
+        });
+    }
+
+    onClickRequest(userId, gId, notiId, index) {
+        axios.post(
+            "http://proevento.tk:3000/group/add/" + userId,
+            {
+                groupId: gId
+            },
+            options
+        ).then((res) => {
+            if (res.status === 200) {
+                alert("You have joined the requested Group");
+                this.onClickRequestDeny(notiId, index);
+                console.log("WORKING SEND");
+            } else {
+                console.log("BORKED");
+            }
+        });
+    }
+
+    onClickRequestDeny(notiId, index){
+        axios.post(
+            "http://proevento.tk:3000/notification/delete/" + notiId, options
+        ).then((res) => {
+            if (res.status === 200) {
+                console.log("Deleted Notification");
+            } else {
+                console.log("Did not Delete Notification");
+            }
+            const list = this.state.searchList;
+            list.splice(index, 1);
+            this.setState({searchList: list});
         });
     }
 
@@ -69,13 +109,14 @@ export default class Notification extends React.Component {
                     <p className="text-center">You don't have any notifications</p>
                 }
                 {
-                    this.state.searchList && this.state.searchList.map((noti, i = 0) => {
+                    this.state.searchList && this.state.searchList.map((noti, i) => {
                         let userName = noti.userName
                         let eventName = noti.eventName
                         let date = noti.date
                         let type = noti.type
+                        let groupName = noti.groupName
                         return(
-                            <div key={noti["notificationId"]}>
+                            <div key={noti["notificationId"]} className="mt-2">
                                 {type == "EVENT" &&
                                     <Card 
                                         className="p-3 bg-light"
@@ -104,6 +145,29 @@ export default class Notification extends React.Component {
                                     >
                                         <Moment className="text-left" format="YYYY-MM-DD HH:mm">{date}</Moment>
                                         <p>{userName} has followed you</p>
+                                    </Card>
+                                }
+                                {type == "RequestGroupOwner" &&
+                                    <Card 
+                                        className="p-3 bg-light"
+                                        onClick={(e) => {
+                                            window.location.href = "http://proevento.tk/home/group/" + noti.groupId;
+                                        }} 
+                                    >
+                                        <Moment className="text-left" format="YYYY-MM-DD HH:mm">{date}</Moment>
+                                    <p>{userName} has requested to join {groupName}</p>
+                                    <Button className="ml-2" variant="contained" color="primary" onClick={()=>this.onClickRequest(noti.userId, noti.groupId, noti.notificationId, i)}>Accept</Button>
+                                    <Button className="ml-2" variant="contained" color="primary" onClick={() =>this.onClickRequestDeny(noti.notificationId, i)}>Refuse</Button>
+                                    </Card>
+                                }
+                                {type == "JoinGroupRequest" &&
+                                    <Card 
+                                        className="p-3 bg-light"
+                                >
+                                    <Moment className="text-left" format="YYYY-MM-DD HH:mm">{date}</Moment>
+                                    <p>{userName} has invited you to join {groupName}</p>
+                                    <Button className="ml-2" variant="contained" color="primary" onClick={() =>this.onClickRequest(localStorage.getItem("user"), noti.groupId, noti.notificationId, i)}>Accept</Button>
+                                    <Button className="ml-2" variant="contained" color="primary" onClick={() =>this.onClickRequestDeny(noti.notificationId, i)}>Refuse</Button>
                                     </Card>
                                 }
                             </div>

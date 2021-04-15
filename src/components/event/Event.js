@@ -7,6 +7,9 @@ import TextField from '@material-ui/core/TextField';
 import "./Event.css";
 import Moment from 'react-moment';
 import axios from "axios";
+import moment from "moment";
+import 'moment-timezone';
+
 
 var options = {
     headers: {
@@ -16,6 +19,7 @@ var options = {
         "Content-type": "Application/json",
     },
 };
+
 
 export default class Event extends React.Component {
     constructor(props) {
@@ -37,7 +41,9 @@ export default class Event extends React.Component {
             for (var i = 0; i < split.length; i++) {
                 axios.get("http://proevento.tk:3000/search/single/" + split[i], options)
                     .then((res) => {
+                        
                         if (res.status === 200 && res["data"].length != 0) {
+                            console.log(res["data"]);
                             axios.post("http://proevento.tk:3000/notification/event/" + res["data"][0]["userId"],
                                 {
                                     eventId: this.props.event['eventId'],
@@ -51,6 +57,42 @@ export default class Event extends React.Component {
             }
         }
         alert("You have shared this event")
+    }
+
+    handleReview = (event) => {
+        event.preventDefault();
+        axios.get("http://proevento.tk:3000/event/review/" + this.props.event['eventId'], options)
+            .then((res) => {
+                const currUser = localStorage.getItem("user");
+                console.log("currUser: " + currUser);
+
+                const eventCreator = this.props.event['userId'];
+                if (res.status === 200) { //what if empty
+                    var reviewList = [];
+                    if (res["data"].length != 0) {
+                        reviewList = res["data"];
+                        console.log(reviewList);
+                    }
+                    if (reviewList.indexOf(currUser) > -1) {
+                        alert("You have already reviewed this user for this event")
+                    }
+                    else {
+                        reviewList.push(currUser);
+                        console.log(reviewList);
+                        axios.post("http://proevento.tk:3000/event/review/" + this.props.event['eventId'],
+                            {
+                                reviews: reviewList
+                            },
+                            options
+                        ).then(res => {
+                            if (res.status === 200) {
+                                window.location.href = "http://proevento.tk/home/reviews/" + eventCreator;
+                            }
+                        });
+                    }
+                }
+            })
+        
     }
 
     render() {
@@ -112,6 +154,10 @@ export default class Event extends React.Component {
                                     />
                                 </label>
                                 <Button variant="contained" color="primary" className="button button1 ml-3" onClick={this.handleSubmit}>Submit</Button>
+
+                                { ((moment(this.state.event["date"]).valueOf() < moment()) && (moment() - (moment(this.state.event["date"]).valueOf()) <= 3600000)) && localStorage.getItem("user") != this.state.event["userId"] &&
+                                 <Button variant="contained" color="primary" className="button button1 ml-3" onClick={this.handleReview}>Give Badges</Button>
+                                }
                             </div>
                         }
                         

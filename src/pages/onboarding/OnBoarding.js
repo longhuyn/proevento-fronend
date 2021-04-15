@@ -70,14 +70,11 @@ export default class OnBoarding extends React.Component {
                             <h3 className="left">Apurva Memani</h3>
                             <h3 className="left">Vincente Mai</h3>
                             <h3 className="left">Daniel Oh</h3>
-                            <h3>copypastacentral</h3>
-                            <p>Rawr x3 nuzzles how are you pounces on you you're so warm o3o notices you have a bulge o: someone's happy ;) nuzzles your necky wecky~ murr~ hehehe rubbies your bulgy wolgy you're so big :oooo rubbies more on your bulgy wolgy it doesn't stop growing ·///· kisses you and lickies your necky daddy likies (; nuzzles wuzzles I hope daddy really likes $: wiggles butt and squirms I want to see your big daddy meat~ wiggles butt I have a little itch o3o wags tail can you please get my itch~ puts paws on your chest nyea~ its a seven inch itch rubs your chest can you help me pwease squirms pwetty pwease sad face I need to be punished runs paws down your chest and bites lip like I need to be punished really good~ paws on your bulge as I lick my lips I'm getting thirsty. I can go for some milk unbuttons your pants as my eyes glow you smell so musky :v licks shaft mmmm~</p>
-                            <p>I sexually Identify as an Attack Helicopter. Ever since I was a boy I dreamed of soaring over the oilfields dropping hot sticky loads on disgusting foreigners. People say to me that a person being a helicopter is Impossible and I'm fucking retarded but I don't care, I'm beautiful. I'm having a plastic surgeon install rotary blades, 30 mm cannons and AMG-114 Hellfire missiles on my body. From now on I want you guys to call me "Apache" and respect my right to kill from above and kill needlessly. If you can't accept me you're a heliphobe and need to check your vehicle privilege. Thank you for being so understanding.</p>
                             <Button
                                 variant="contained"
                                 color="primary"
-                                onClick={() => window.location.href = "/home/feed"}
-                            >Go To Home</Button>
+                                onClick={() => window.location.href = "/home/categories"}
+                            >Choose Your Interests</Button>
                         </Carousel.Caption>
                     </Carousel.Item>
                 </Carousel>

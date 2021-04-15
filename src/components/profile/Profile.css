@@ -1,4 +1,16 @@
 .avatar {
-    width: 30px !important;
-    height: 30px !important;
+  width: 30px !important;
+  height: 30px !important;
+}
+
+.badges {
+  -webkit-text-stroke: 1px black;
+  font-family: Sans-serif;
+  color: gold;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.location {
+  text-align: center;
 }

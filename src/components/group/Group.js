@@ -14,13 +14,9 @@ export default class Group extends React.Component {
             page: this.props.page
         }
 
-        this.onClickRequest = this.onClickRequest.bind(this);
+        // this.onClickRequest = this.onClickRequest.bind(this);
 
-        this.onClickRequest();
-    }
-
-    onClickRequest() {
-
+        // this.onClickRequest();
     }
 
     render() {
@@ -30,14 +26,14 @@ export default class Group extends React.Component {
                     <Grid item xs={3}>
                         <img width="150px" className="d-block text-center" src={this.state.data["logo"]} style={{margin: "auto"}}/>
                         { this.props.page && 
-                            <div className="d-flex justify-content-center mt-2">
-                                <Button
+                            <div className="d-flex justify-content-center mt-4">
+                                {/* <Button
                                     variant="contained" 
                                     color="primary" 
                                     onClick={this.onClickRequest}
                                 >
                                     Request to join
-                                </Button>
+                                </Button> */}
                             </div>
                         }
                     </Grid>

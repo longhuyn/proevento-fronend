@@ -56,7 +56,9 @@ export default class MyProfile extends React.Component {
         axios.post("http://proevento.tk:3000/user/delete_user/" + userId,options).then( res=>{
             if (res.status==200) {
                 alert("Successfully deleted account");
+                localStorage.removeItem('user');
                 this.props.history.push("/login");
+
             }
          });
     

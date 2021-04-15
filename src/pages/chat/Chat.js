@@ -254,7 +254,7 @@ export default class Chat extends React.Component {
                                     <Avatar src={this.state.currentRoom["owner"]["profileImage"]} name={this.state.currentRoom["owner"]["fullName"]} />          
                                     { this.state.currentRoom["participants"].map((user, index) => {
                                         return (
-                                            <Avatar key={user["userId"]} src={user["profileImage"]} name={user["fullName"]} />
+                                            <Avatar key={index} src={user["profileImage"]} name={user["fullName"]} />
                                         )
                                     })}       
                                 </AvatarGroup>
@@ -348,7 +348,7 @@ export default class Chat extends React.Component {
                                     return (
                                         <div className="d-flex align-items-center mt-3 ml-3">
                                             <Avatar
-                                                key={user["userId"]}
+                                                key={index}
                                                 src={user["profileImage"]}
                                                 name={user["fullName"]}
                                                 style={{height:"25px", width:"25px"}}

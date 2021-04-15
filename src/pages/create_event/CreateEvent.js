@@ -84,7 +84,7 @@ export default class CreateEvent extends React.Component {
                                     {
                                         eventId: thisEventId,
                                         eventName: this.state.event_name,
-                                        userId: user
+                                        userId: user,
                                     },
                                     options
                                 )

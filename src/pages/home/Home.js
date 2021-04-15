@@ -17,7 +17,8 @@ import ViewProfile from "../viewprofile/ViewProfile";
 import Notification from "../notification/Notification";
 import Chat from "../chat/Chat";
 import OnBoarding from "../onboarding/OnBoarding";
-//import Categories from "../categories/Categories";
+import Categories from "../categories/Categories";
+import Reviews from "../reviews/Reviews";
 
 const homeHistory = createBrowserHistory();
 
@@ -69,6 +70,8 @@ function Home(props) {
                     <Route path={"/home/notification"} component={Notification}></Route>
                     <Route path={"/home/chat"} component={Chat}></Route>
                     <Route path={"/home/onboarding"} component={OnBoarding}></Route>
+                    <Route path={"/home/categories"} component={Categories}></Route>
+                    <Route path={"/home/reviews/:userId"} component={Reviews}></Route>
                     
                     
                     <Route exact path={"/home"}>

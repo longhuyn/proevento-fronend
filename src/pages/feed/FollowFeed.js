@@ -23,13 +23,14 @@ export default class Feed extends Component {
       profile: null,
       following: [],
       eventList: [],
-      userGroupList: []
-    };
+      userGroupList: [],
+      profileTags: []
+      };
     this.loadData = this.loadData.bind(this);
     this.loadData();
 
-    this.loadGroupUsers = this.loadGroupUsers.bind(this);
-    this.loadGroupUsers();
+    // this.loadGroupUsers = this.loadGroupUsers.bind(this);
+    // this.loadGroupUsers();
 
     this.loadEvents = this.loadEvents.bind(this);
     this.loadEvents();
@@ -52,30 +53,6 @@ export default class Feed extends Component {
     .then(res => {
         if (res.status === 200) {
             this.setState({user: res["data"]});
-        }
-    });
-    axios.get("http://proevento.tk:3000/profile/" + userId, options)
-    .then(res => {
-        if (res.status === 200) {
-            this.setState({profile: res["data"]});
-            this.setState({following: res["data"]["following"]})
-        }
-    });
-    axios.get("http://proevento.tk:3000/chat/group_chat/" + userId, options)
-    .then(res => {
-        if (res.status === 200) {
-            var groups = res["data"];
-            var groupUsers = [];
-            for (var i = 0; i < groups.length; i++) {
-              for (var j = 0; j < groups[i]["participants"].length; j++) {
-                if (!groupUsers.includes(groups[i]["participants"][j]) || groups[i]["participants"][j] == userId) {
-                  console.log("Added user");
-                  groupUsers.push(groups[i]["participants"][j]);
-                }
-              }
-            }
-            console.log("user Ct: " + groupUsers.length);
-            this.setState({userGroupList: groupUsers});
         }
     });
   }
@@ -104,49 +81,160 @@ export default class Feed extends Component {
 
   loadEvents() {
     const userId = localStorage.getItem('user');
-    axios.get("http://proevento.tk:3000/event/all")
-    .then(res => {
+    axios.get("http://proevento.tk:3000/profile/" + userId, options)
+      .then(res => {
         if (res.status === 200) {
-            //this.setState({eventList: res["data"]});
-            var eventList = res["data"];
-            var followList = this.state.following;
-            var groupList = this.state.userGroupList;
-            var results = [];
-            axios.get("http://proevento.tk:3000/chat/group_chat/" + userId, options)
-            .then(res => {
-                if (res.status === 200) {
-                    var groups = res["data"];
-                    var groupUsers = [];
-                    for (var i = 0; i < groups.length; i++) {
-                      for (var j = 0; j < groups[i]["participants"].length; j++) {
-                        if (!groupUsers.includes(groups[i]["participants"][j]) || groups[i]["participants"][j] == userId) {
-                          console.log("Added user");
-                          groupUsers.push(groups[i]["participants"][j]);
-                        }
-                      }
-                    }
-                    console.log("user Ct: " + groupUsers.length);
-                    this.setState({userGroupList: groupUsers});
+          this.setState({profile: res["data"]});
+          this.setState({profileTags: res["data"]["tags"]})
+          this.setState({following: res["data"]["following"]});
+          var listTags = this.state.profileTags;
+          // var tagEventList = [];
+          // for (var i = 0; i < listTags.length; i++) {
+          //   var tagTxt = listTags[i];
+          //   console.log(listTags[i]);
+          //   console.log("string:" + tagTxt);
+          //   axios.get("http://proevento.tk:3000/search/tags/" + tagTxt, options)
+          //   .then(res => {
+          //     if(res.status === 200) {
+          //       console.log("Results" + res["data"].length);
+          //       console.log("hei");
+          //       for(var h = 0; h < res["data"].length; h++) {
+          //         console.log("h" + res["data"][h]);
+          //         console.log(res["data"][h]);
+          //         tagEventList.push(res["data"][h]);
+          //       } 
+          //     }
+          //   });
+          // }
+          //this.setState({tagEvents: tagEventList});
+          axios.get("http://proevento.tk:3000/chat/group_chat/" + userId, options)
+          .then(res => {
+            if (res.status === 200) {
+              var groups = res["data"];
+              var groupUsers = [];
+              for (var i = 0; i < groups.length; i++) {
+                if (!groupUsers.includes(groups[i]["ownerId"])  && groups[i]["ownerId"] != userId) {
+                  //console.log("add owner");
+                  groupUsers.push(groups[i]["ownerId"]);
                 }
-            });
-            console.log("number of users check: " + groupList.length);
-            for (var i = 0; i < eventList.length; i++) {
-                for (var j = 0; j < followList.length; j++) {
-                    if (eventList[i]["userId"] == parseInt(followList[j])) {
-                        results.push(eventList[i]);
-                    }
-                }
-            }
-            for (var i = 0; i < eventList.length; i++) {
-              for (var j = 0; j < groupList.length; j++) {
-                if (eventList[i]["userId"] == parseInt(groupList[j])) {
-                  results.push(eventList[i]);
+                for (var j = 0; j < groups[i]["participants"].length; j++) {
+                  if (!groupUsers.includes(groups[i]["participants"][j]["userId"]) && groups[i]["participants"][j]["userId"] != userId) {
+                    groupUsers.push(groups[i]["participants"][j]["userId"]);
+                    //console.log("Add user");
+                  }
                 }
               }
             }
-            this.setState({eventList: results});
+            // console.log("user Ct: " + groupUsers.length);
+            // for (var i =0; i < groupUsers.length; i++) {
+            //   console.log("user: " + groupUsers[i]);
+            // }
+            this.setState({userGroupList: groupUsers});
+            axios.get("http://proevento.tk:3000/event/all")
+            .then(res => {
+              if (res.status === 200) {
+                //this.setState({eventList: res["data"]});
+                var eventList = res["data"];
+                var followList = this.state.following;
+                var groupList = this.state.userGroupList;
+                //var tagList = this.state.tagEvents;
+                console.log(eventList);
+
+                var results = [];
+                for (var i = 0; i < eventList.length; i++) {
+                    for (var j = 0; j < followList.length; j++) {
+                        if (eventList[i]["userId"] == parseInt(followList[j]) && !results.includes(eventList[i])) {
+                            //console.log("test" + eventList[i]["userId"]);
+                            results.push(eventList[i]);
+                        }
+                    }
+                }
+                for (var i = 0; i < eventList.length; i++) {
+                  for (var j = 0; j < groupList.length; j++) {
+                    if (eventList[i]["userId"] == parseInt(groupList[j]) && !results.includes(eventList[i])) {
+                      results.push(eventList[i]);
+                      console.log(eventList[i]);
+                      console.log(results.length);
+                    }
+                  } 
+                }
+                for (var i = 0; i < eventList.length; i++) {
+                  for (var j = 0; j < listTags.length; j++) {
+                    for (var k = 0; k < eventList[i]["tags"].length; k ++) {
+                      console.log("here~~~~!!");
+                      console.log(eventList[i]["tags"][k]);
+                      if (eventList[i]["userId"] != userId && !results.includes(eventList[i]) && eventList[i]["tags"][k] == listTags[j]){
+                        console.log("here!!!!");
+                        console.log(eventList[i]);
+                        results.push(eventList[i]);
+                      }
+                    }
+                  }
+                  // if(tagList[i]["userId"] != userId && !results.includes(tagList[i])) {
+                  //   results.push(tagList[i]);
+                  //   console.log(tagList[i]);
+                  //   console.log(results.length);
+                  // }
+                }
+                console.log(results);
+                this.setState({eventList: results});
+              }
+            });
+          });
         }
     });
+    // axios.get("http://proevento.tk:3000/chat/group_chat/" + userId, options)
+    // .then(res => {
+    //   if (res.status === 200) {
+    //     var groups = res["data"];
+    //     var groupUsers = [];
+    //     for (var i = 0; i < groups.length; i++) {
+    //       if (!groupUsers.includes(groups[i]["ownerId"])  && groups[i]["ownerId"] != userId) {
+    //         //console.log("add owner");
+    //         groupUsers.push(groups[i]["ownerId"]);
+    //       }
+    //       for (var j = 0; j < groups[i]["participants"].length; j++) {
+    //         if (!groupUsers.includes(groups[i]["participants"][j]["userId"]) && groups[i]["participants"][j]["userId"] != userId) {
+    //           groupUsers.push(groups[i]["participants"][j]["userId"]);
+    //           //console.log("Add user");
+    //         }
+    //       }
+    //     }
+    //   }
+    //   // console.log("user Ct: " + groupUsers.length);
+    //   // for (var i =0; i < groupUsers.length; i++) {
+    //   //   console.log("user: " + groupUsers[i]);
+    //   // }
+    //   this.setState({userGroupList: groupUsers});
+    //   axios.get("http://proevento.tk:3000/event/all")
+    //   .then(res => {
+    //     if (res.status === 200) {
+    //       //this.setState({eventList: res["data"]});
+    //       var eventList = res["data"];
+    //       var followList = this.state.following;
+    //       var groupList = this.state.userGroupList;
+    //       var tagList = this.state.profileTags;
+    //       var results = [];
+    //       for (var i = 0; i < eventList.length; i++) {
+    //           for (var j = 0; j < followList.length; j++) {
+    //               if (eventList[i]["userId"] == parseInt(followList[j]) && !results.includes(eventList[i])) {
+    //                   //console.log("test" + eventList[i]["userId"]);
+    //                   results.push(eventList[i]);
+    //               }
+    //           }
+    //       }
+    //       for (var i = 0; i < eventList.length; i++) {
+    //         for (var j = 0; j < groupList.length; j++) {
+    //           if (eventList[i]["userId"] == parseInt(groupList[j]) && !results.includes(eventList[i])) {
+    //             results.push(eventList[i]);
+    //           }
+    //         } 
+    //       }
+    //       console.log("taglength" + tagList.length);
+    //       this.setState({eventList: results});
+    //     }
+    //   });
+    // });
   }
   
   render() {

@@ -35,6 +35,16 @@ export default class Profile extends React.Component {
             followingNum: 0,
             hostedNum: 0,
             upcomingNum: 0,
+            entertainingNum: 0,
+            onTimeNum: 0,
+            informativeNum: 0,
+            lifeChangingNum: 0,
+            trashNum: 0,
+            amazingNum: 0,
+            mustWatchNum: 0,
+            visionaryNum: 0,
+            wasteOfTimeNum: 0,
+            lovelyNum: 0,
             followStatus: "FOLLOW"
         };
         this.onClickEdit = this.onClickEdit.bind(this);
@@ -104,6 +114,68 @@ export default class Profile extends React.Component {
                 });
                 this.setState({hostedNum: numHosted});
                 this.setState({upcomingNum: numUpcoming});
+            }
+        });
+
+        axios.get("http://proevento.tk:3000/profile/badge/" + this.state.userId, options)
+        .then(res => {
+            if (res.status === 200) {
+                //const eventList = res["data"];
+                let entertainingNum = 0;
+                let onTimeNum = 0;
+                let informativeNum = 0;
+                let lifeChangingNum = 0;
+                let trashNum = 0;
+                let amazingNum = 0;
+                let mustWatchNum = 0;
+                let visionaryNum = 0;
+                let wasteOfTimeNum = 0;
+                let lovelyNum = 0;
+                res["data"].map((row, i) => {
+                    let curDate = moment();
+                    let date = moment(row["date"]).valueOf();
+                    if (row == "Informative") {
+                        informativeNum++;
+                    }
+                    else if (row == "On Time") {
+                        onTimeNum++;
+                    }
+                    else if (row == "Entertaining") {
+                        entertainingNum++;
+                    }
+                    else if (row == "Life Changing") {
+                        lifeChangingNum++;
+                    }
+                    else if (row == "Trash") {
+                        trashNum++;
+                    }
+                    else if (row == "Amazing") {
+                        amazingNum++;
+                    }
+                    else if (row == "Must Watch") {
+                        mustWatchNum++;
+                    }
+                    else if (row == "Visionary") {
+                        visionaryNum++;
+                    }
+                    else if (row == "Waste of Time") {
+                        wasteOfTimeNum++;
+                    }
+                    else if (row == "Lovely") {
+                        lovelyNum++;
+                    }
+                   //console.log("date: " + date + " " + curDate);
+                });
+                this.setState({informativeNum: informativeNum});
+                this.setState({onTimeNum: onTimeNum});
+                this.setState({entertainingNum: entertainingNum});
+                this.setState({lifeChangingNum: lifeChangingNum});
+                this.setState({trashNum: trashNum});
+                this.setState({amazingNum: amazingNum});
+                this.setState({mustWatchNum:  mustWatchNum});
+                this.setState({visionaryNum: visionaryNum});
+                this.setState({wasteOfTimeNum: wasteOfTimeNum});
+                this.setState({lovelyNum: lovelyNum});
             }
         });
     }
@@ -195,7 +267,39 @@ export default class Profile extends React.Component {
     render() {
         if (!this.state.isEdit && !this.state.isViewFollowers && !this.state.isViewFollowing) {
             return (
-                <div>
+                <div> 
+                    <div class="location">
+                        { this.state.informativeNum != 0 &&
+                            <label class="badges">{this.state.informativeNum}x Informative &nbsp; &nbsp; </label>
+                        }
+                        { this.state.entertainingNum != 0 &&
+                            <label class="badges">{this.state.entertainingNum}x Entertaining &nbsp; &nbsp; </label>
+                        }
+                        { this.state.onTimeNum != 0 &&
+                            <label class="badges">{this.state.onTimeNum}x On Time &nbsp; &nbsp; </label>
+                        }
+                        { this.state.lifeChangingNum != 0 &&
+                            <label class="badges">{this.state.lifeChangingNum}x Life Changing &nbsp; &nbsp; </label>
+                        }
+                        { this.state.trashNum != 0 &&
+                            <label class="badges">{this.state.trashNum}x Trash &nbsp; &nbsp; </label>
+                        }
+                        { this.state.amazingNum != 0 &&
+                            <label class="badges">{this.state.amazingNum}x Amazing &nbsp; &nbsp; </label>
+                        }
+                        { this.state.mustWatchNum != 0 &&
+                            <label class="badges">{this.state.mustWatchNum}x Must Watch &nbsp; &nbsp; </label>
+                        }
+                        { this.state.visionaryNum != 0 &&
+                            <label class="badges">{this.state.visionaryNum}x Visionary &nbsp; &nbsp; </label>
+                        }
+                        { this.state.wasteOfTimeNum != 0 &&
+                            <label class="badges">{this.state.wasteOfTimeNum}x Waste of Time &nbsp; &nbsp; </label>
+                        }
+                        { this.state.lovelyNum != 0 &&
+                            <label class="badges">{this.state.lovelyNum}x Lovely &nbsp; &nbsp; </label>
+                        }
+                    </div>
                     <Grid container>
                         <Grid item xs={3}>
                             { this.state.user &&

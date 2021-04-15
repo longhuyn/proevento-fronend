@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import "./Categories.css";
+import "./Reviews.css";
 import TextField from '@material-ui/core/TextField';
 import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
@@ -17,7 +17,7 @@ export default class Categories extends React.Component {
         this.state = { 
             error: "",
             pickedCategory: "",
-            availCategories: null,
+            availBadges: null,
             profileTags: []
         };
         this.removeTag = this.removeTag.bind(this);
@@ -28,10 +28,10 @@ export default class Categories extends React.Component {
     }
 
     loadCategories() {
-        axios.get(`http://proevento.tk:3000/category`)
+        axios.get(`http://proevento.tk:3000/badges`)
         .then((res) => {
             if (res.status === 200) {
-                this.setState({availCategories: res["data"]});
+                this.setState({availBadges: res["data"]});
             }
         });
     }
@@ -53,14 +53,46 @@ export default class Categories extends React.Component {
             },
         };
         const userId = localStorage.getItem("user");
-        axios.post("http://proevento.tk:3000/profile/tag/" + userId, {
-            tags: this.state.profileTags
+        var currUrl = window.location;
+        var result = /[^/]*$/.exec(currUrl)[0];
+        console.log("event creator: " + result);
+        /*
+        axios.post("http://proevento.tk:3000/profile/badge/" + result, {
+            badges: this.state.profileTags
         }, options)
         .then(res => {
             if (res.status === 200) {
-                window.location.href = "http://proevento.tk/home/feed/";
+                window.location.href = "http://proevento.tk/home/profile/" + result;
             }
         })
+        */
+
+        axios.get("http://proevento.tk:3000/profile/badge/" + result, options)
+            .then((res) => {
+                if (res.status === 200) { //what if empty
+                    var badgeList = [];
+                    if (res["data"].length != 0) {
+                        badgeList = res["data"];
+                        console.log(badgeList);
+                    } 
+                    var currBadgeList = this.state.profileTags;
+                    var newList = badgeList.concat(currBadgeList);
+                    console.log(newList);
+                    axios.post("http://proevento.tk:3000/profile/badge/" + result,
+                        {
+                            badges: newList
+                        },
+                        options
+                    ).then(res => {
+                        if (res.status === 200) {
+                            window.location.href = "http://proevento.tk/home/profile/" + result;
+                        }
+                    });
+                    
+                }
+            }
+        )
+
     }
 
     addTag() {
@@ -74,12 +106,12 @@ export default class Categories extends React.Component {
     render() {
         return(
             <div>
-                <h3 className="text-center">What Are Your Interests?</h3>
-                <Grid item xs={12} alignItems="center">
+                <h3 className="text-center">What Badges Would You Like to Give?</h3>
+                <Grid>
                     <div>
                         <form noValidate autoComplete="off">
                             <div>
-                                <label className="mt-4">Categories:</label>
+                                <label className="mt-4">Badges:</label>
                                 {}
                                 <Select
                                     style={{width: "250px"}}
@@ -87,8 +119,8 @@ export default class Categories extends React.Component {
                                     value={this.state.pickedCategory}
                                     onChange={(e) => this.setState({pickedCategory: e.target.value})}
                                 >
-                                    { this.state.availCategories &&
-                                    this.state.availCategories.map((category, index) => {
+                                    { this.state.availBadges &&
+                                    this.state.availBadges.map((category, index) => {
                                         return (
                                             <MenuItem key={index} value={category["name"]}>{category["name"]}</MenuItem>
                                         )
@@ -118,7 +150,7 @@ export default class Categories extends React.Component {
                         </form>
                     </div>
                     <div className="mt-2" >
-                        <Button variant="contained" color="primary" onClick={this.onSave}>Get Started</Button>
+                        <Button variant="contained" color="info" onClick={this.onSave}>Give Badges</Button>
                     </div>
                 </Grid>
             </div>
