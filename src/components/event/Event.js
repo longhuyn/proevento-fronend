@@ -6,6 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import "./Event.css";
 import Moment from 'react-moment';
+
 import axios from "axios";
 import moment from "moment";
 import 'moment-timezone';
@@ -20,7 +21,6 @@ var options = {
     },
 };
 
-
 export default class Event extends React.Component {
     constructor(props) {
         super(props);
@@ -28,12 +28,26 @@ export default class Event extends React.Component {
             doneLoading: false,
             event: this.props.event,
             eventDate: null,
-            send_to: ""
+            send_to: "",
+            recording: ""
         };
-        
+        this.onCancelEvent = this.onCancelEvent.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleRecord = this.handleRecord.bind(this);
     }
-
+    handleRecord = (event)=> {
+        event.preventDefault();
+        console.log("Made it");
+        if(this.state.recording && this.state.recording != ""){
+            axios.post("http://proevento.tk:3000/event/recording/"+ this.props.event['eventId'],{
+                uploadLink: this.state.recording
+            }, options).then((res)=> {
+                if (res.status === 200){
+                    alert("Successfully uploaded link");
+                }
+            });
+        }
+    }
     handleSubmit = (event) => {
         event.preventDefault();
         if (this.state.send_to && this.state.send_to != "") {
@@ -92,7 +106,19 @@ export default class Event extends React.Component {
                     }
                 }
             })
-        
+    }
+
+    onCancelEvent = (event) => {
+        event.preventDefault();
+        axios.post("http://proevento.tk:3000/notification/cancel/" +this.props.event['eventId'], options).then(
+            res=> {
+                if(res.status===200){
+                    alert("You have canceled event");
+                    window.location.href = "http://proevento.tk/home/";
+                    
+                }
+            }
+        )
     }
 
     render() {
@@ -117,9 +143,22 @@ export default class Event extends React.Component {
                         <p className = "description">Description: {this.state.event["description"]}</p>
                         {/* <div><label>Participants: {this.state.event["participants"].length}</label></div> */}
                         <div className = "tagList">
+                            <label>Categories: </label>
+                            {
+                                this.state.event["categories"].map((row, i) => {
+                                    return (
+                                        <React.Fragment key={i}>
+                                            <span className="badge badge-secondary d-inline ml-1">{row}</span>
+                                        </React.Fragment>
+                                    )
+                                })
+                            }
+                        </div>
+                        <div className = "tagList">
                             <label>Tags: </label>
                             {
                                 this.state.event["tags"].map((row, i) => {
+                                    console.log(row);
                                     return (
                                         <React.Fragment key={i}>
                                             <span className="badge badge-secondary d-inline ml-1">{row}</span>
@@ -155,10 +194,20 @@ export default class Event extends React.Component {
                                 </label>
                                 <Button variant="contained" color="primary" className="button button1 ml-3" onClick={this.handleSubmit}>Submit</Button>
 
-                                { ((moment(this.state.event["date"]).valueOf() < moment()) && (moment() - (moment(this.state.event["date"]).valueOf()) <= 3600000)) && localStorage.getItem("user") != this.state.event["userId"] &&
+                                { ((moment(this.state.event["date"]).valueOf() < moment()) && (moment() - (moment(this.state.event["date"]).valueOf()) <= 3600000)) 
+                                    && localStorage.getItem("user") != this.state.event["userId"] &&
                                  <Button variant="contained" color="primary" className="button button1 ml-3" onClick={this.handleReview}>Give Badges</Button>
                                 }
                             </div>
+                        }
+                        { this.props.isEventPage && this.state.event["userId"] == user &&
+                            <Button
+                                variant="contained"
+                                color="secondary"
+                                
+                                onClick={this.onCancelEvent}>
+                                Cancel Event
+                            </Button>
                         }
                         
                     </Grid>
@@ -167,6 +216,26 @@ export default class Event extends React.Component {
                             <img src = {this.state.event["eventImage"]} width="250px"/>
                         }
                     </Grid>
+                    <div>
+                        {
+                            this.state.event["recorded"] &&
+                            <div onSubmit = {this.handleRecord}>
+                            <label>
+                                <p>If you wish to record, manually record on zoom and upload the file to google drive, share all and upload link here:</p>
+                                <TextField 
+                                    id="outlined-basic" 
+                                    variant="outlined" 
+                                    size="small" fullWidth
+                                    onChange={(e) =>
+                                        this.setState({ recording: e.target.value })
+                                    }
+                                />
+                            </label>
+                            <Button variant="contained" color="primary" className="button button1 ml-3" onClick={this.handleRecord}>Submit</Button>
+                            </div>
+                            
+                        }
+                    </div>
                 </Grid>
             </Card>
         )

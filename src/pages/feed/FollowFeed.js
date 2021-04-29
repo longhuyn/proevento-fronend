@@ -112,6 +112,7 @@ export default class Feed extends Component {
             if (res.status === 200) {
               var groups = res["data"];
               var groupUsers = [];
+              console.log(groups);
               for (var i = 0; i < groups.length; i++) {
                 if (!groupUsers.includes(groups[i]["ownerId"])  && groups[i]["ownerId"] != userId) {
                   //console.log("add owner");
@@ -160,10 +161,10 @@ export default class Feed extends Component {
                 }
                 for (var i = 0; i < eventList.length; i++) {
                   for (var j = 0; j < listTags.length; j++) {
-                    for (var k = 0; k < eventList[i]["tags"].length; k ++) {
+                    for (var k = 0; k < eventList[i]["categories"].length; k ++) {
                       console.log("here~~~~!!");
-                      console.log(eventList[i]["tags"][k]);
-                      if (eventList[i]["userId"] != userId && !results.includes(eventList[i]) && eventList[i]["tags"][k] == listTags[j]){
+                      console.log(eventList[i]["categories"][k]);
+                      if (eventList[i]["userId"] != userId && !results.includes(eventList[i]) && eventList[i]["categories"][k] == listTags[j]){
                         console.log("here!!!!");
                         console.log(eventList[i]);
                         results.push(eventList[i]);

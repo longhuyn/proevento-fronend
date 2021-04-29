@@ -37,8 +37,8 @@ export default class Notification extends React.Component {
                             // console.log("name" + noti.userId);
                             // console.log(tempList);
                             //console.log(res["data"]);
-                            if (res["data"][0].fullName) {
-                                tempList.push(res["data"][0].fullName);
+                            if (res["data"][0]) {
+                                tempList.push(res["data"][0]);
                             }
                             this.setState({currUserName: tempList});
                         }
@@ -47,7 +47,18 @@ export default class Notification extends React.Component {
             }
         });
     }
-
+    onClickFollow(userId, followId, notificationId, index) {
+        axios.post("http://proevento.tk:3000/profile/follow/" + followId, {
+            followerId: userId
+        },  options)
+        .then(res => {
+            if (res.status === 200) {
+                alert("You accepted their follow request");
+                this.onClickRequestDeny(notificationId, index);
+            }
+        });
+    }
+        
     onClickRequest(userId, gId, notiId, index) {
         axios.post(
             "http://proevento.tk:3000/group/add/" + userId,
@@ -57,9 +68,22 @@ export default class Notification extends React.Component {
             options
         ).then((res) => {
             if (res.status === 200) {
-                alert("You have joined the requested Group");
-                this.onClickRequestDeny(notiId, index);
+                alert("User accepted to the requested Group");
+                //this.onClickRequestDeny(notiId, index);
+                axios.post(
+                    "http://proevento.tk:3000/notification/delete/" + notiId, options
+                ).then((res) => {
+                    if (res.status === 200) {
+                        console.log("Deleted Notification");
+                    } else {
+                        console.log("Did not Delete Notification");
+                    }
+                    const list = this.state.searchList;
+                    list.splice(index, 1);
+                    this.setState({searchList: list});
+                });
                 console.log("WORKING SEND");
+                window.location.href = "http://proevento.tk/home/group/" + gId;
             } else {
                 console.log("BORKED");
             }
@@ -139,19 +163,18 @@ export default class Notification extends React.Component {
                                 {type == "FOLLOW" &&
                                     <Card 
                                         className="p-3 bg-light"
-                                        onClick={(e) => {
-                                            window.location.href = "http://proevento.tk/home/profile/" + noti.userId;
-                                        }} 
                                     >
-                                        <Moment className="text-left" format="YYYY-MM-DD HH:mm">{date}</Moment>
-                                        <p>{userName} has followed you</p>
+                                    <Moment className="text-left" format="YYYY-MM-DD HH:mm">{date}</Moment>
+                                    <p>{userName} has requested to follow you</p>
+                                    <Button className="ml-2" variant="contained" color="primary" onClick={()=>this.onClickFollow(noti.userId, noti.recipientId, noti.notificationId, i)}>Accept</Button>
+                                    <Button className="ml-2" variant="contained" color="primary" onClick={() =>this.onClickRequestDeny(noti.notificationId, i)}>Refuse</Button>
                                     </Card>
                                 }
                                 {type == "RequestGroupOwner" &&
                                     <Card 
                                         className="p-3 bg-light"
                                         onClick={(e) => {
-                                            window.location.href = "http://proevento.tk/home/group/" + noti.groupId;
+                                            //window.location.href = "http://proevento.tk/home/group/" + noti.groupId;
                                         }} 
                                     >
                                         <Moment className="text-left" format="YYYY-MM-DD HH:mm">{date}</Moment>

@@ -133,15 +133,21 @@ export default class GroupPage extends React.Component {
                     <Group data={this.state.groupData} page={true}/>
                 }
                 {this.state.reveal &&
-                 <TextField 
-                    className="ml-2 w-25"
-                    label="Search" 
-                    onChange={(event) => this.setState({searchText: event.target.value, emptyList: false})} 
-                    value={this.state.newTag}
-                />
-                }
-                {this.state.reveal &&
-                    <Button className="ml-2" variant="contained" color="primary" onClick={this.onSearch}>Search</Button>
+                    <div>
+                        <label className="mt-4">Add user: </label>
+                        <TextField 
+                            className="ml-2 w-25"
+                            label="Search" 
+                            onChange={(event) => this.setState({searchText: event.target.value, emptyList: false})} 
+                            value={this.state.newTag}
+                        />
+                        <Button 
+                            className="ml-2" 
+                            variant="contained" 
+                            color="primary" 
+                            onClick={this.onSearch}
+                        >Search</Button>
+                    </div>
                 }
                   { !this.state.emptyList && this.state.searchList && this.state.searchList.map((user, i) => (
                         <div key={user["userId"]}>

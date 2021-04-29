@@ -18,12 +18,13 @@ export default class Categories extends React.Component {
             error: "",
             pickedCategory: "",
             availCategories: null,
-            profileTags: []
+            categories: []
         };
         this.removeTag = this.removeTag.bind(this);
         this.addTag = this.addTag.bind(this);
         this.onSave = this.onSave.bind(this);
         this.loadCategories = this.loadCategories.bind(this);
+
         this.loadCategories();
     }
 
@@ -37,10 +38,9 @@ export default class Categories extends React.Component {
     }
 
     removeTag(tag) {
-        var prevTags = this.state.profileTags;
-        prevTags.splice(prevTags.indexOf(tag), 1);
-        var prevProfile = prevTags;
-        this.setState({profileTags: prevProfile});
+        var prevCategories = this.state.categories;
+        prevCategories.splice(prevCategories.indexOf(tag), 1);
+        this.setState({categories: prevCategories});
     }
 
     onSave() {
@@ -54,7 +54,7 @@ export default class Categories extends React.Component {
         };
         const userId = localStorage.getItem("user");
         axios.post("http://proevento.tk:3000/profile/tag/" + userId, {
-            tags: this.state.profileTags
+            tags: this.state.categories
         }, options)
         .then(res => {
             if (res.status === 200) {
@@ -64,10 +64,10 @@ export default class Categories extends React.Component {
     }
 
     addTag() {
-        const prevProfile = this.state.profileTags;
-        if (!prevProfile.includes(this.state.pickedCategory)) {
-            prevProfile.push(this.state.pickedCategory);
-            this.setState({profileTags: prevProfile});  
+        const prevCategories = this.state.categories;
+        if (!prevCategories.includes(this.state.pickedCategory)) {
+            prevCategories.push(this.state.pickedCategory);
+            this.setState({categories: prevCategories});  
         }
     }
 
@@ -80,7 +80,6 @@ export default class Categories extends React.Component {
                         <form noValidate autoComplete="off">
                             <div>
                                 <label className="mt-4">Categories:</label>
-                                {}
                                 <Select
                                     style={{width: "250px"}}
                                     className="ml-2"
@@ -99,22 +98,24 @@ export default class Categories extends React.Component {
                                     <AddIcon fontSize="small"/>
                                 </IconButton>
                             </div>
-                            { this.state.profileTags && this.state.profileTags.map((row, i) => {
-                                return (
-                                    <React.Fragment key={i}>
-                                        <Button 
-                                            className="ml-1"
-                                            variant="contained" 
-                                            size="large" 
-                                            startIcon={<CloseIcon/>}
-                                            onClick={() => this.removeTag(row)}
-                                        >
-                                            {row}
-                                        </Button>
-                                    </React.Fragment>
-                                )
-                                })
-                            }
+                            <div style={{marginLeft: "85px"}}>
+                                { this.state.categories && this.state.categories.map((row, i) => {
+                                    return (
+                                        <React.Fragment key={i}>
+                                            <Button 
+                                                className="ml-1"
+                                                variant="contained" 
+                                                size="small" 
+                                                startIcon={<CloseIcon/>}
+                                                onClick={() => this.removeTag(row)}
+                                            >
+                                                {row}
+                                            </Button>
+                                        </React.Fragment>
+                                    )
+                                })}
+                            </div>
+                            
                         </form>
                     </div>
                     <div className="mt-2" >

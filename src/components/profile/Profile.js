@@ -55,6 +55,7 @@ export default class Profile extends React.Component {
         this.onClickFollow = this.onClickFollow.bind(this);
         this.doneViewFollow = this.doneViewFollow.bind(this);
         this.loadData = this.loadData.bind(this);
+        this.onClickRequest = this.onClickRequest.bind(this);
 
         if (this.props.match && this.props.match.params && this.props.match.params.userId) {
             this.setState({userId: this.props.match.params.userId});
@@ -71,12 +72,25 @@ export default class Profile extends React.Component {
                 "Content-type": "Application/json"
             }
         };
+        axios.post("http://proevento.tk:3000/profile/checkFollow/" + localStorage.getItem("user"),{
+            idToCheck: this.state.userId
+        }, options )
+        .then(res=>{
+            console.log(res["data"]);
+            if (res["data"]==="true"){
+                this.setState({followStatus: "UNFOLLOW"});
+            }
+            else{
+                this.setState({followStatus: "FOLLOW"});
+            }
+        });
         axios.get("http://proevento.tk:3000/user/" + this.state.userId, options)
         .then(res => {
             if (res.status === 200) {
                 this.setState({user: res["data"]});
             }
         });
+        axios.get()
 
         axios.get("http://proevento.tk:3000/profile/" + this.state.userId, options)
         .then(res => {
@@ -88,9 +102,6 @@ export default class Profile extends React.Component {
                 else {
                     this.setState({followersNum: this.state.profile["followers"].length});
                     this.setState({followingNum: this.state.profile["following"].length});
-                    if (this.state.profile["followers"].includes(localStorage.getItem("user"))) {
-                        this.setState({followStatus: "UNFOLLOW"});
-                    } 
                 }
             }
         });
@@ -179,7 +190,40 @@ export default class Profile extends React.Component {
             }
         });
     }
+    onClickRequest(){
+        if(this.state.followStatus === "FOLLOW") {
+            console.log("Doing FOllow");
+            axios.post("http://proevento.tk:3000/notification/follow/" + this.state.userId, {
+                userId: localStorage.getItem("user")
+            },  options)
+            .then(res => {
+                if(res.status===200){
+                    alert("You have requested to follow the user");
+                }
+            });
+        }
+        else{
+            console.log("Unfollowing person");
+            axios.put("http://proevento.tk:3000/profile/follow/" + this.state.userId, {
+                followerId: localStorage.getItem("user")
+            },  options)
+            .then(res => {
+                if (res.status === 200) {
+                    axios.get("http://proevento.tk:3000/profile/" + this.state.userId, options)
+                    .then(res => {
+                        if (res.status === 200) {
+                            this.setState({profile: res["data"]});
+                            this.setState({followersNum: this.state.profile["followers"].length});
+                            this.setState({followingNum: this.state.profile["following"].length});
+                        }
+                    this.setState({followStatus: "FOLLOW"});
+                    });
+                }
+            });
+        }
 
+        
+    }
     onClickFollow() {
         if(this.state.followStatus == "FOLLOW") {
             axios.post("http://proevento.tk:3000/profile/follow/" + this.state.userId, {
@@ -192,7 +236,16 @@ export default class Profile extends React.Component {
                         if (res.status === 200) {
                             this.setState({profile: res["data"]});
                             this.setState({followersNum: this.state.profile["followers"].length});
-                            this.setState({followingNum: this.state.profile["following"].length});
+                            this.setState({ followingNum: this.state.profile["following"].length });
+                            axios.post("http://proevento.tk:3000/notification/" + this.state.userId, {
+                                userId: localStorage.getItem("user")
+                            }, options)
+                            .then(res => {
+                                if (res.status === 200) {
+                                    alert("You have followed this user");
+                                    console.log(res.status)
+                                }
+                            });
                         }
                     this.setState({followStatus: "UNFOLLOW"});
                     });
@@ -306,7 +359,7 @@ export default class Profile extends React.Component {
                                 <img width="150px" className="d-block text-center" src={this.state.user["profileImage"]} style={{margin: "auto"}}/>
                             }
                             { this.props.isMyProfile === false && localStorage.getItem("user") != this.state.userId &&
-                                <div className="d-flex justify-content-center mt-2"><Button variant="contained" color="primary" onClick={this.onClickFollow}>{this.state.followStatus}</Button></div>
+                                <div className="d-flex justify-content-center mt-2"><Button variant="contained" color="primary" onClick={this.onClickRequest}>{this.state.followStatus}</Button></div>
                             }
                             { this.props.profilePage && localStorage.getItem("user") == this.state.userId &&
                                 <div className="d-flex justify-content-center mt-2"><Button variant="contained" color="primary" onClick={this.onClickEdit}>Edit Profile</Button></div>

@@ -48,6 +48,9 @@ export default class Group extends React.Component {
                                 <p className="ml-2 m-0">{this.state.data["owner"]["fullName"]} (owner)</p>
                             </div>
                             <div className="mt-2">
+                                <label>Description: {this.state.data["description"]}</label>
+                            </div>
+                            <div className="mt-2">
                                 <label style={{width: "100px"}}>Categories: </label>
                                 { this.state.data["categories"].length == 0 &&
                                     <span className="ml-1">empty</span>

@@ -5,6 +5,7 @@ import Profile from "../../components/profile/Profile";
 import PersonalEvents from "../../components/personal_events/PersonalEvents";
 import Divider from "@material-ui/core/Divider";
 import Button from "@material-ui/core/Button";
+import ProfileCalendar from "../../components/profile_calendar/ProfileCalendar";
 
 export default class MyProfile extends React.Component {
     constructor(props) {
@@ -85,6 +86,8 @@ export default class MyProfile extends React.Component {
                                 onClick={this.onClick}
                             > Deactivate Account</Button>
                         </div>
+                        <Divider className="mt-4 mb-4"/>
+                        <ProfileCalendar/>
                         <Divider className="mt-4 mb-4"/>
                         <PersonalEvents userId={userId}/>
                     </div>

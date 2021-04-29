@@ -75,12 +75,14 @@ export default class Search extends React.Component {
                     >
                         <MenuItem value={"event"}>Event</MenuItem>
                         <MenuItem value={"user"}>User</MenuItem>
-                        <MenuItem value={"tags"}>Tags</MenuItem>
+                        <MenuItem value={"eventCategory"}>Event Category</MenuItem>
+                        <MenuItem value={"tags"}>Event Tag</MenuItem>
+                        <MenuItem value={"description"}>Event Description</MenuItem>
                         <MenuItem value={"date"}>Date</MenuItem>
                         <MenuItem value={"groupName"}>Group Name</MenuItem>
                         <MenuItem value={"groupCategory"}>Group Category</MenuItem>
                     </Select>
-                    { this.state.searchOption != "date" && this.state.searchOption != "groupCategory" &&
+                    { this.state.searchOption != "date" && this.state.searchOption != "groupCategory" && this.state.searchOption != "eventCategory" &&
                         <TextField 
                             className="ml-2 w-25"
                             label="Search" 
@@ -103,7 +105,7 @@ export default class Search extends React.Component {
                             </MuiPickersUtilsProvider>
                         </div>
                     }
-                    { this.state.searchOption == "groupCategory" &&
+                    { (this.state.searchOption == "groupCategory" || this.state.searchOption == "eventCategory") &&
                         <Select
                             className="mt-3"
                             value={this.state.searchText}
@@ -150,7 +152,8 @@ export default class Search extends React.Component {
                             </Card>
                         </div>
                     ))}
-                    { (this.state.searchOption === "tags" || this.state.searchOption === "event" || this.state.searchOption === "date") &&
+                    { (this.state.searchOption === "tags" || this.state.searchOption === "event" 
+                    || this.state.searchOption === "date" || this.state.searchOption === "eventCategory" || this.state.searchOption == "description") &&
                         this.state.searchList && this.state.searchList.map((event, i) => {
                         return (
                             <div key={event["eventId"]} className="mt-4" onClick={(e) => {
@@ -161,7 +164,7 @@ export default class Search extends React.Component {
                             </div>
                         )
                     })}
-                    { this.state.searchOption === "date" && this.state.searchList && this.state.searchList.map((event, i) => {
+                    {/* { this.state.searchOption === "date" && this.state.searchList && this.state.searchList.map((event, i) => {
                         return (
                             <div key={event["eventId"]} className="mt-4" onClick={(e) => {
                                 e.preventDefault();
@@ -170,7 +173,7 @@ export default class Search extends React.Component {
                                 <Event event={event} ></Event>
                             </div>
                         )
-                    })}
+                    })} */}
                     { (this.state.searchOption === "groupName" || this.state.searchOption === "groupCategory")  && this.state.searchList && this.state.searchList.map((group, i) => {
                         return (
                             <Card key={group["groupId"]} className="mt-4 bg-light p-4" onClick={(e) => {
