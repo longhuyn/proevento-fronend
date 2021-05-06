@@ -1,34 +1,53 @@
 .avatar {
-    width: 30px !important;
-    height: 30px !important;
+  width: 30px !important;
+  height: 30px !important;
 }
 
 .center {
-    display: block;
-    position: absolute;
-    float: right;
-    clear: right;
-    margin-left:975px;
+  display: block;
+  position: absolute;
+  float: right;
+  clear: right;
+  margin-left: 975px;
 }
 
 .description {
-    margin-right: 200px;
+  margin-right: 200px;
 }
 
 .title {
-    text-align: center;
-    padding-right: 100px;
-    padding-left: 100px;
+  text-align: center;
+  padding-right: 100px;
+  padding-left: 100px;
+}
 
+.favoriteButton {
+  float: right;
+  margin-top: 0px;
+  text-align: center;
+  margin: 0px;
 }
 
 .time {
-    text-align: center;
-    opacity: 0.8;
+  text-align: center;
+  opacity: 0.8;
 }
 
 .tagList {
-    display: flex;  
-    flex-wrap: wrap;
-    align-items: center !important;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center !important;
+}
+
+.favorite {
+  font-weight: lighter;
+  color: rgb(173, 170, 168);
+  font-size: 17px;
+  margin-top: 0px;
+}
+
+.buttonWrap {
+  padding: 0px;
+  width: 30px !important;
+  height: 30px !important;
 }

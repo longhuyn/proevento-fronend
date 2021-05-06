@@ -21,7 +21,6 @@ export default class Notification extends React.Component {
             eventList: {},
             currUserName: []
         };
-        
         const user = localStorage.getItem("user");
         axios.get("http://proevento.tk:3000/notification/"+user, options)
         .then(res => {
@@ -47,6 +46,7 @@ export default class Notification extends React.Component {
             }
         });
     }
+
     onClickFollow(userId, followId, notificationId, index) {
         axios.post("http://proevento.tk:3000/profile/follow/" + followId, {
             followerId: userId
@@ -168,6 +168,19 @@ export default class Notification extends React.Component {
                                     <p>{userName} has requested to follow you</p>
                                     <Button className="ml-2" variant="contained" color="primary" onClick={()=>this.onClickFollow(noti.userId, noti.recipientId, noti.notificationId, i)}>Accept</Button>
                                     <Button className="ml-2" variant="contained" color="primary" onClick={() =>this.onClickRequestDeny(noti.notificationId, i)}>Refuse</Button>
+                                    </Card>
+                                }
+                                 {type == "RECORD" &&
+                                    <Card 
+                                        className="p-3 bg-light"
+                                    >
+                                    <Moment className="text-left" format="YYYY-MM-DD HH:mm">{date}</Moment>
+                                    <p>  google drive recording has been uploaded for {eventName}</p>
+                                    <label>Recording link: 
+                                        <Button onClick={(e) => window.location.href = noti.uploadLink } color="primary" target="_blank">
+                                        Click here
+                                        </Button>
+                                    </label>
                                     </Card>
                                 }
                                 {type == "RequestGroupOwner" &&

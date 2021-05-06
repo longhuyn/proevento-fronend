@@ -3,6 +3,8 @@ import Button from "@material-ui/core/Button";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import PublicFeed from "./PublicFeed";
 import FollowFeed from "./FollowFeed";
+import PopularFeed from "./PopularFeed";
+import FavoriteFeed from "./FavoriteFeed";
 
 export default class Feed extends React.Component {
     constructor(props) {
@@ -31,11 +33,23 @@ export default class Feed extends React.Component {
                             onClick={() => this.setState({feedType: "follow"})}>
                             Follow Feed
                         </Button>
+                        <Button 
+                            variant= { (this.state.feedType == "popular") ? "contained" : "outlined" } 
+                            onClick={() => this.setState({feedType: "popular"})}>
+                            Popular Feed
+                        </Button>
+                        <Button 
+                            variant= { (this.state.feedType == "favorite") ? "contained" : "outlined" } 
+                            onClick={() => this.setState({feedType: "favorite"})}>
+                            Favorite Feed
+                        </Button>
                     </ButtonGroup>
                 </div>
                 <div className="mt-4">
                     { this.state.feedType == "public" && <PublicFeed/>}
                     { this.state.feedType == "follow" && <FollowFeed/>}
+                    { this.state.feedType == "popular" && <PopularFeed/>}
+                    { this.state.feedType == "favorite" && <FavoriteFeed/>}
                 </div>
             </div>
         );

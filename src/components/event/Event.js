@@ -6,11 +6,11 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import "./Event.css";
 import Moment from 'react-moment';
-
 import axios from "axios";
 import moment from "moment";
 import 'moment-timezone';
-
+import HeartCheckbox from 'react-heart-checkbox';
+import Heart from "react-animated-heart";
 
 var options = {
     headers: {
@@ -29,18 +29,49 @@ export default class Event extends React.Component {
             event: this.props.event,
             eventDate: null,
             send_to: "",
-            recording: ""
+            recording: "",
+            favoriteNum: 0,
+            favoriteStatus: false
         };
         this.onCancelEvent = this.onCancelEvent.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleRecord = this.handleRecord.bind(this);
+        this.onFavorite = this.onFavorite.bind(this);
+        this.loadData = this.loadData.bind(this);
+        this.loadData(); 
     }
+
+    loadData = (event)=> {
+        axios.patch("http://proevento.tk:3000/event/favorite/" + this.props.event['eventId'], {
+                favoriterId: localStorage.getItem("user")
+            },  options)
+        .then(res=>{
+            if (res["data"]==="true"){
+                this.setState({favoriteStatus: true});
+            }
+            else{
+                this.setState({favoriteStatus: false});
+            }
+        });
+        axios.get("http://proevento.tk:3000/event/" + this.props.event['eventId'], options)
+        .then(res => {
+            if (res.status === 200) {
+                this.setState({event: res["data"]});
+                this.setState({favoriteNum: this.state.event["favorites"].length});
+            }
+        });
+    }
+
     handleRecord = (event)=> {
         event.preventDefault();
         console.log("Made it");
         if(this.state.recording && this.state.recording != ""){
             axios.post("http://proevento.tk:3000/event/recording/"+ this.props.event['eventId'],{
-                uploadLink: this.state.recording
+                uploadLink: this.state.recording,
+                participants: this.props.event["participants"],
+                eventName: this.props.event['eventName'],
+                userId: localStorage.getItem("user"),
+                eventId: this.props.event['eventId']
             }, options).then((res)=> {
                 if (res.status === 200){
                     alert("Successfully uploaded link");
@@ -121,11 +152,63 @@ export default class Event extends React.Component {
         )
     }
 
+    onFavorite = (event) => {
+        event.preventDefault();
+        if(this.state.favoriteStatus == false) {
+            axios.post("http://proevento.tk:3000/event/favorite/" + this.props.event['eventId'], {
+                favoriterId: localStorage.getItem("user")
+            },  options)
+            .then(res => {
+                if (res.status === 200) {
+                    axios.get("http://proevento.tk:3000/event/" + this.props.event['eventId'], options)
+                    .then(res => {
+                        if (res.status === 200) {
+                            this.setState({event: res["data"]});
+                            this.setState({favoriteNum: this.state.event["favorites"].length});
+                        }
+                    this.setState({followStatus: true});
+                    this.loadData();
+                    });
+                }
+            });
+        } else {
+            axios.put("http://proevento.tk:3000/event/favorite/" + this.props.event['eventId'], {
+                favoriterId: localStorage.getItem("user")
+            },  options)
+            .then(res => {
+                if (res.status === 200) {
+                    axios.get("http://proevento.tk:3000/event/" + this.props.event['eventId'], options)
+                    .then(res => {
+                        if (res.status === 200) {
+                            this.setState({event: res["data"]});
+                            this.setState({favoriteNum: this.state.event["favorites"].length});
+                        }
+                    this.setState({followStatus: false});
+                    this.loadData();
+                    });
+                }
+            });
+        }
+    }
+
     render() {
         const user = localStorage.getItem('user');
         return(
             <Card className="mt-4 p-5 bg-light">
-                <Grid container>
+                <div>
+                    <div className="favoriteButton">
+                        <div className="buttonWrapper">
+                            <Heart
+                                isClick={this.state.favoriteStatus}
+                                onClick={this.onFavorite}
+                                style={{height: "20px", width: "20px"}}
+                            >
+                            </Heart>
+                            <div className="favorite">{this.state.favoriteNum + " Favorites"}</div>
+                        </div>
+                    </div>
+                </div>
+                <Grid container>    
                     <Grid item xs={9}>
                         <Avatar className="avatar float-left" style={{cursor: "pointer"}}
                             onClick={(e) => {
@@ -158,7 +241,7 @@ export default class Event extends React.Component {
                             <label>Tags: </label>
                             {
                                 this.state.event["tags"].map((row, i) => {
-                                    console.log(row);
+                                   console.log(row);
                                     return (
                                         <React.Fragment key={i}>
                                             <span className="badge badge-secondary d-inline ml-1">{row}</span>
@@ -218,24 +301,35 @@ export default class Event extends React.Component {
                     </Grid>
                     <div>
                         {
-                            this.state.event["recorded"] &&
+                            this.props.isEventPage && this.state.event["recorded"] &&
                             <div onSubmit = {this.handleRecord}>
-                            <label>
-                                <p>If you wish to record, manually record on zoom and upload the file to google drive, share all and upload link here:</p>
-                                <TextField 
-                                    id="outlined-basic" 
-                                    variant="outlined" 
-                                    size="small" fullWidth
-                                    onChange={(e) =>
-                                        this.setState({ recording: e.target.value })
-                                    }
-                                />
-                            </label>
-                            <Button variant="contained" color="primary" className="button button1 ml-3" onClick={this.handleRecord}>Submit</Button>
+                                <label>
+                                    <p>This Event will be Recorded</p>
+                                    <p>If you wish to record, manually record on zoom and upload the file to google drive, share all and upload link here:</p>
+                                    <TextField 
+                                        id="outlined-basic" 
+                                        variant="outlined" 
+                                        size="small" fullWidth
+                                        onChange={(e) =>
+                                            this.setState({ recording: e.target.value })
+                                        }
+                                    />
+                                </label>
+
+                                <Button variant="contained" color="primary" className="button button1 ml-3" onClick={this.handleRecord}>Submit</Button>
                             </div>
-                            
                         }
                     </div>
+                    <div>
+                        { this.state.event["Record"] &&
+                        
+                            <label>Recording link: 
+                                <Button href={this.state.event["Record"]} color="primary" target="_blank">
+                                    Click here
+                                </Button>
+                            </label>
+                        }
+                    </div> 
                 </Grid>
             </Card>
         )

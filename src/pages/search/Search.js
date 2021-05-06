@@ -77,7 +77,6 @@ export default class Search extends React.Component {
                         <MenuItem value={"user"}>User</MenuItem>
                         <MenuItem value={"eventCategory"}>Event Category</MenuItem>
                         <MenuItem value={"tags"}>Event Tag</MenuItem>
-                        <MenuItem value={"description"}>Event Description</MenuItem>
                         <MenuItem value={"date"}>Date</MenuItem>
                         <MenuItem value={"groupName"}>Group Name</MenuItem>
                         <MenuItem value={"groupCategory"}>Group Category</MenuItem>
