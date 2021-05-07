@@ -24,22 +24,22 @@ export default class Feed extends React.Component {
                         aria-label="outlined primary button group"
                     >
                         <Button 
-                            variant= { (this.state.feedType == "public") ? "contained" : "outlined" } 
+                            variant={ (this.state.feedType == "public") ? "contained" : "outlined" } 
                             onClick={() => this.setState({feedType: "public"})}>
                             Public Feed
                         </Button>
                         <Button 
-                            variant= { (this.state.feedType == "follow") ? "contained" : "outlined" } 
+                            variant={ (this.state.feedType == "follow") ? "contained" : "outlined" } 
                             onClick={() => this.setState({feedType: "follow"})}>
                             Follow Feed
                         </Button>
                         <Button 
-                            variant= { (this.state.feedType == "popular") ? "contained" : "outlined" } 
+                            variant={ (this.state.feedType == "popular") ? "contained" : "outlined" } 
                             onClick={() => this.setState({feedType: "popular"})}>
                             Popular Feed
                         </Button>
                         <Button 
-                            variant= { (this.state.feedType == "favorite") ? "contained" : "outlined" } 
+                            variant={ (this.state.feedType == "favorite") ? "contained" : "outlined" } 
                             onClick={() => this.setState({feedType: "favorite"})}>
                             Favorite Feed
                         </Button>

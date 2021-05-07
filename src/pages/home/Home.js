@@ -72,8 +72,6 @@ function Home(props) {
                     <Route path={"/home/onboarding"} component={OnBoarding}></Route>
                     <Route path={"/home/categories"} component={Categories}></Route>
                     <Route path={"/home/reviews/:userId"} component={Reviews}></Route>
-                    
-                    
                     <Route exact path={"/home"}>
                         <Redirect to={"/home/feed"} />;
                     </Route>

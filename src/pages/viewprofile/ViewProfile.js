@@ -4,6 +4,7 @@ import axios from 'axios';
 import Profile from "../../components/profile/Profile";
 import PersonalEvents from "../../components/personal_events/PersonalEvents";
 import Divider from "@material-ui/core/Divider";
+import ProfileCalendar from "../../components/profile_calendar/ProfileCalendar";
 
 export default class ViewProfile extends React.Component {
     constructor(props) {
@@ -48,6 +49,8 @@ export default class ViewProfile extends React.Component {
                 { this.state.profile && this.state.user &&
                     <div>
                         <Profile userId={this.state.userId} isMyProfile={false}/>
+                        <Divider className="mt-4 mb-4"/>
+                        <ProfileCalendar/>
                         <Divider className="mt-4 mb-4"/>
                         <PersonalEvents className="mt-2" userId={this.state.userId}/>
                     </div>

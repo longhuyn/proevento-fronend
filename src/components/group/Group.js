@@ -11,12 +11,26 @@ export default class Group extends React.Component {
         this.state = {
             groupId: 0,
             data: this.props.data,
-            page: this.props.page
+            page: this.props.page,
+            members: null
         }
+
+        this.loadMemberStats = this.loadMemberStats.bind(this);
+        this.loadMemberStats();
 
         // this.onClickRequest = this.onClickRequest.bind(this);
 
         // this.onClickRequest();
+    }
+
+    loadMemberStats() {
+        axios.get("http://proevento.tk:3000/group/stats" + this.state.groupId)
+        .then((res) => {
+            if (res.status === 200) {
+                this.setState({members: res["data"]});
+                console.log(this.state.members);
+            }
+        });
     }
 
     render() {
