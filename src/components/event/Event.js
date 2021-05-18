@@ -4,6 +4,7 @@ import Card from '@material-ui/core/Card';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
+import Checkbox from '@material-ui/core/Checkbox';
 import "./Event.css";
 import Moment from 'react-moment';
 import axios from "axios";
@@ -66,6 +67,8 @@ export default class Event extends React.Component {
         event.preventDefault();
         console.log("Made it");
         if(this.state.recording && this.state.recording != ""){
+            console.log(this.props.event["participants"]);
+            console.log("In If statement");
             axios.post("http://proevento.tk:3000/event/recording/"+ this.props.event['eventId'],{
                 uploadLink: this.state.recording,
                 participants: this.props.event["participants"],
@@ -89,7 +92,7 @@ export default class Event extends React.Component {
                         
                         if (res.status === 200 && res["data"].length != 0) {
                             console.log(res["data"]);
-                            axios.post("http://proevento.tk:3000/notification/event/" + res["data"][0]["userId"],
+                            axios.post("http://proevento.tk:3000/notification/eventemp/" + res["data"][0]["userId"],
                                 {
                                     eventId: this.props.event['eventId'],
                                     eventName: this.props.event['eventName'],
@@ -283,16 +286,6 @@ export default class Event extends React.Component {
                                 }
                             </div>
                         }
-                        { this.props.isEventPage && this.state.event["userId"] == user &&
-                            <Button
-                                variant="contained"
-                                color="secondary"
-                                
-                                onClick={this.onCancelEvent}>
-                                Cancel Event
-                            </Button>
-                        }
-                        
                     </Grid>
                     <Grid item xs className="d-flex justify-content-center align-items-center">
                         {this.state.event["eventImage"] != null &&
@@ -304,7 +297,11 @@ export default class Event extends React.Component {
                             this.props.isEventPage && this.state.event["recorded"] &&
                             <div onSubmit = {this.handleRecord}>
                                 <label>
-                                    <p>This Event will be Recorded</p>
+                                    <div className="mt-3">
+                                        <Checkbox checked={true} disabled={true}/>
+                                        <p className="d-inline">This Event will be Recorded</p>
+                                    </div>
+                                    
                                     <p>If you wish to record, manually record on zoom and upload the file to google drive, share all and upload link here:</p>
                                     <TextField 
                                         id="outlined-basic" 
@@ -331,6 +328,15 @@ export default class Event extends React.Component {
                         }
                     </div> 
                 </Grid>
+                { this.props.isEventPage && this.state.event["userId"] == user &&
+                    <Button
+                        className="mt-2"
+                        variant="contained"
+                        color="secondary"
+                        onClick={this.onCancelEvent}>
+                        Cancel Event
+                    </Button>
+                }
             </Card>
         )
     }

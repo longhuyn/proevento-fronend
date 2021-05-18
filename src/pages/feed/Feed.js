@@ -5,6 +5,8 @@ import PublicFeed from "./PublicFeed";
 import FollowFeed from "./FollowFeed";
 import PopularFeed from "./PopularFeed";
 import FavoriteFeed from "./FavoriteFeed";
+import TopEvents from "./TopEvents";
+import TopVoices from "./TopVoices";
 
 export default class Feed extends React.Component {
     constructor(props) {
@@ -43,6 +45,16 @@ export default class Feed extends React.Component {
                             onClick={() => this.setState({feedType: "favorite"})}>
                             Favorite Feed
                         </Button>
+                        <Button 
+                            variant={ (this.state.feedType == "top_events") ? "contained" : "outlined" } 
+                            onClick={() => this.setState({feedType: "top_events"})}>
+                            Top Events
+                        </Button>
+                        <Button 
+                            variant={ (this.state.feedType == "top_voices") ? "contained" : "outlined" } 
+                            onClick={() => this.setState({feedType: "top_voices"})}>
+                            Top Voices
+                        </Button>
                     </ButtonGroup>
                 </div>
                 <div className="mt-4">
@@ -50,6 +62,8 @@ export default class Feed extends React.Component {
                     { this.state.feedType == "follow" && <FollowFeed/>}
                     { this.state.feedType == "popular" && <PopularFeed/>}
                     { this.state.feedType == "favorite" && <FavoriteFeed/>}
+                    { this.state.feedType == "top_events" && <TopEvents/>}
+                    { this.state.feedType == "top_voices" && <TopVoices/>}
                 </div>
             </div>
         );

@@ -3,6 +3,7 @@ import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import Avatar from "@material-ui/core/Avatar";
 import { makeStyles } from '@material-ui/core/styles';
+import axios from "axios";
 
 export default class Group extends React.Component {
     constructor(props) {
@@ -17,20 +18,30 @@ export default class Group extends React.Component {
 
         this.loadMemberStats = this.loadMemberStats.bind(this);
         this.loadMemberStats();
-
-        // this.onClickRequest = this.onClickRequest.bind(this);
-
-        // this.onClickRequest();
     }
 
     loadMemberStats() {
-        axios.get("http://proevento.tk:3000/group/stats" + this.state.groupId)
+        axios.get("http://proevento.tk:3000/group/stats/" + this.state.data["groupId"])
         .then((res) => {
             if (res.status === 200) {
                 this.setState({members: res["data"]});
                 console.log(this.state.members);
             }
+            // console.log(this.state.data);
         });
+    }
+
+    findMemberStats(userId) {
+        if (this.state.members == null){
+            return 0;
+        }
+        var i = 0;
+        for (i = 0; i < this.state.members.length; i++){
+            if (this.state.members[i]["user"]["userId"] == userId) {
+                return this.state.members[i]["value"];
+            }
+        }
+        return 0;
     }
 
     render() {
@@ -39,17 +50,6 @@ export default class Group extends React.Component {
                 <Grid container>
                     <Grid item xs={3}>
                         <img width="150px" className="d-block text-center" src={this.state.data["logo"]} style={{margin: "auto"}}/>
-                        { this.props.page && 
-                            <div className="d-flex justify-content-center mt-4">
-                                {/* <Button
-                                    variant="contained" 
-                                    color="primary" 
-                                    onClick={this.onClickRequest}
-                                >
-                                    Request to join
-                                </Button> */}
-                            </div>
-                        }
                     </Grid>
                     <Grid item item xs={9}>
                         <div>
@@ -82,21 +82,35 @@ export default class Group extends React.Component {
                                 <div>
                                     <p className="d-inline float-left" style={{width: "100px"}}>Members: </p>
                                     <div className="d-block" style={{marginLeft: "105px"}}>
-                                        {this.state.data["participants"].map((row, index) => {
-                                            console.log(this.state.page);
+                                        { this.state.data["participants"].length == 0 &&
+                                            <p>No members</p>
+                                        }
+                                        { this.state.data["participants"].length > 0 &&
+                                        this.state.data["participants"].map((row, index) => {
                                             return (
                                                 <div key={index}>
                                                     <Avatar
                                                         className="float-left avatar mr-2"
                                                         src={row["profileImage"]}
                                                     />
-                                                    <p>{row["fullName"]}</p>
+                                                    <p>{row["fullName"]} <span className="badge badge-secondary d-inline ml-1">{this.findMemberStats(row["userId"])}</span></p>
                                                 </div>
                                             )
                                         })}
                                     </div>
                                 </div>
                             }
+                            {/* <div>
+                                <p className="d-inline float-left" style={{width: "100px"}}>End Date: </p>
+                                <div className="d-block" style={{marginLeft: "105px"}}>
+                                    {this.state.data["suggestionDate"].length == 0 && 
+                                        <p>No end date set</p>
+                                    }
+                                    {this.state.data["suggestionDate"].length > 0 &&
+                                        <p>{this.state.data["suggestionDate"]} </p>
+                                    }
+                                </div>
+                            </div> */}
                         </div>
                     </Grid>
                 </Grid>

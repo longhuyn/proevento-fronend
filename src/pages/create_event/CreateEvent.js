@@ -85,7 +85,6 @@ export default class CreateEvent extends React.Component {
                 eventImage: this.state.eventImage,
                 date: this.state.date,
                 recorded: this.state.recorded
-
             },
             options
         )
@@ -105,15 +104,11 @@ export default class CreateEvent extends React.Component {
                                         eventName: this.state.event_name,
                                         userId: user,
                                     },
-                                    options
-                                )
-                                .then((res) => {
-                                    console.log(res);
-                                    window.location.href = "http://proevento.tk/home/event/" + thisEventId;
-                                });
+                                    options);
                             }
                         });
                     }
+                    window.location.href = "http://proevento.tk/home/event/" + thisEventId;
                 }
                 else {
                     window.location.href = "http://proevento.tk/home/event/" + thisEventId;

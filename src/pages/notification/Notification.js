@@ -139,6 +139,7 @@ export default class Notification extends React.Component {
                         let date = noti.date
                         let type = noti.type
                         let groupName = noti.groupName
+                        console.log(type)
                         return(
                             <div key={noti["notificationId"]} className="mt-2">
                                 {type == "EVENT" &&
